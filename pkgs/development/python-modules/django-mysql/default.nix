@@ -1,39 +1,34 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
 
-# build-system
-, setuptools
+  # build-system
+  setuptools,
 
-# dependencies
-, django
-, mysqlclient
+  # dependencies
+  django,
 
-# tests
-, pytest-django
-, pytestCheckHook
+  # tests
+  pytest-django,
+  pytestCheckHook,
 }:
 
 buildPythonPackage rec {
   pname = "django-mysql";
-  version = "4.11.0";
-  format = "pyproject";
+  version = "4.13.0";
+  pyproject = true;
 
   src = fetchFromGitHub {
     owner = "adamchainz";
     repo = "django-mysql";
     rev = "refs/tags/${version}";
-    hash = "sha256-4PxJH5P/a4oNigbTjrZa3q+FeDQTdkvCKonUUl4I8m0=";
+    hash = "sha256-hIvkLLv9R23u+JC6t/zwbMvmgLMstYp0ytuSqNiohJg=";
   };
 
-  nativeBuildInputs = [
-    setuptools
-  ];
+  build-system = [ setuptools ];
 
-  buildInputs = [
-    django
-    mysqlclient
-  ];
+  dependencies = [ django ];
 
   doCheck = false; # requires mysql/mariadb server
 
@@ -43,6 +38,8 @@ buildPythonPackage rec {
     pytest-django
     pytestCheckHook
   ];
+
+  pythonImportsCheck = [ "django_mysql" ];
 
   meta = with lib; {
     changelog = "https://github.com/adamchainz/django-mysql/blob/${version}/docs/changelog.rst";

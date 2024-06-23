@@ -392,8 +392,9 @@ rec {
 
   inherit (import ./build-vim-plugin.nix {
     inherit lib stdenv rtpPath toVimPlugin;
-  }) buildVimPlugin buildVimPluginFrom2Nix;
+  }) buildVimPlugin;
 
+  buildVimPluginFrom2Nix = lib.warn "buildVimPluginFrom2Nix is deprecated: use buildVimPlugin instead" buildVimPlugin;
 
   # used to figure out which python dependencies etc. neovim needs
   requiredPlugins = {
@@ -414,6 +415,7 @@ rec {
 
   toVimPlugin = drv:
     drv.overrideAttrs(oldAttrs: {
+      name = "vimplugin-${oldAttrs.name}";
       # dont move the "doc" folder since vim expects it
       forceShare = [ "man" "info" ];
 

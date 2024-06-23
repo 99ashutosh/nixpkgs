@@ -13,16 +13,16 @@ let
   common = { stname, target, postInstall ? "" }:
     buildGoModule rec {
       pname = stname;
-      version = "1.24.0";
+      version = "1.27.8";
 
       src = fetchFromGitHub {
         owner = "syncthing";
         repo = "syncthing";
         rev = "v${version}";
-        hash = "sha256-5vr9qWMHBYpu8wHpV1JZcX1kEPi+mYeZ7ZQBqXASp9I=";
+        hash = "sha256-+uyN/x/nFB/YAOvIqO1IIs3UH+yn/eKMBW1Ap9PvhRM=";
       };
 
-      vendorHash = "sha256-BZwZ6npmWFU0lvynjRZOBOhtxqic0djoSUdCOLbUwjE=";
+      vendorHash = "sha256-fzNpdriCRr4M3oW8IaImnGEN4G9AQwLZNFHg00zbIs0=";
 
       nativeBuildInputs = lib.optionals stdenv.isDarwin [
         # Recent versions of macOS seem to require binaries to be signed when
@@ -66,7 +66,7 @@ let
         description = "Open Source Continuous File Synchronization";
         changelog = "https://github.com/syncthing/syncthing/releases/tag/v${version}";
         license = licenses.mpl20;
-        maintainers = with maintainers; [ joko peterhoeg andrew-d ];
+        maintainers = with maintainers; [ joko peterhoeg ];
         mainProgram = target;
         platforms = platforms.unix;
       };

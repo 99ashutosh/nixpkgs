@@ -1,19 +1,21 @@
-{ lib
-, aiohttp
-, arrow
-, buildPythonPackage
-, fetchFromGitHub
-, pyotp
-, pytestCheckHook
-, pythonOlder
-, pythonRelaxDepsHook
-, setuptools
+{
+  lib,
+  aiohttp,
+  aiozoneinfo,
+  arrow,
+  buildPythonPackage,
+  fetchFromGitHub,
+  pyotp,
+  python-dotenv,
+  pytestCheckHook,
+  pythonOlder,
+  setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "opower";
-  version = "0.0.34";
-  format = "pyproject";
+  version = "0.5.0";
+  pyproject = true;
 
   disabled = pythonOlder "3.9";
 
@@ -21,32 +23,24 @@ buildPythonPackage rec {
     owner = "tronikos";
     repo = "opower";
     rev = "refs/tags/v${version}";
-    hash = "sha256-VIw0FRFhZpd9R5/j8ejgfy1p8/R2Gv8Wtjc3PDA4bqo=";
+    hash = "sha256-Rv5ttUUlBqa4yFEV5WWrZ+fhL/mrvjoYFsMN6xnFUhQ=";
   };
 
-  pythonRemoveDeps = [
-    # https://github.com/tronikos/opower/pull/4
-    "asyncio"
-  ];
+  build-system = [ setuptools ];
 
-  nativeBuildInputs = [
-    pythonRelaxDepsHook
-    setuptools
-  ];
-
-  propagatedBuildInputs = [
+  dependencies = [
     aiohttp
+    aiozoneinfo
     arrow
     pyotp
   ];
 
   nativeCheckInputs = [
     pytestCheckHook
+    python-dotenv
   ];
 
-  pythonImportsCheck = [
-    "opower"
-  ];
+  pythonImportsCheck = [ "opower" ];
 
   meta = with lib; {
     description = "Module for getting historical and forecasted usage/cost from utilities that use opower.com";

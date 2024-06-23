@@ -1,22 +1,31 @@
-{ lib, fetchurl, mkDerivation, appimageTools, libsecret, makeWrapper }:
+{ lib
+, stdenvNoCC
+, fetchurl
+, appimageTools
+, makeWrapper
+, writeShellApplication
+, curl
+, yq
+, common-updater-scripts
+}:
 let
   pname = "beeper";
-  version = "3.71.16";
+  version = "3.106.2";
   name = "${pname}-${version}";
   src = fetchurl {
-    url = "https://download.todesktop.com/2003241lzgn20jd/beeper-${version}.AppImage";
-    hash = "sha256-Ho5zFmhNzkOmzo/btV+qZfP2GGx5XvV/1JncEKlH4vc=";
+    url = "https://download.todesktop.com/2003241lzgn20jd/beeper-3.106.2-build-240604xwl5q01pr-x86_64.AppImage";
+    hash = "sha256-WbAWJJzk58UVmRN3RHmU/V6zPiLWAb7m7hns4gmP55M=";
   };
   appimage = appimageTools.wrapType2 {
     inherit version pname src;
-    extraPkgs = pkgs: with pkgs; [ libsecret ];
+    extraPkgs = pkgs: [ pkgs.libsecret ];
   };
   appimageContents = appimageTools.extractType2 {
     inherit version pname src;
   };
 in
-mkDerivation rec {
-  inherit name pname;
+stdenvNoCC.mkDerivation rec {
+  inherit name pname version;
 
   src = appimage;
 
@@ -24,8 +33,6 @@ mkDerivation rec {
 
   installPhase = ''
     runHook preInstall
-
-    mv bin/${name} bin/${pname}
 
     mkdir -p $out/
     cp -r bin $out/bin
@@ -44,8 +51,22 @@ mkDerivation rec {
     runHook postInstall
   '';
 
+  passthru = {
+    updateScript = lib.getExe (writeShellApplication {
+      name = "update-beeper";
+      runtimeInputs = [ curl yq common-updater-scripts ];
+      text = ''
+        set -o errexit
+        latestLinux="$(curl -s https://download.todesktop.com/2003241lzgn20jd/latest-linux.yml)"
+        version="$(echo "$latestLinux" | yq -r .version)"
+        filename="$(echo "$latestLinux" | yq -r '.files[] | .url | select(. | endswith(".AppImage"))')"
+        update-source-version beeper "$version" "" "https://download.todesktop.com/2003241lzgn20jd/$filename" --source-key=src.src
+      '';
+    });
+  };
+
   meta = with lib; {
-    description = "Universal chat app.";
+    description = "Universal chat app";
     longDescription = ''
       Beeper is a universal chat app. With Beeper, you can send
       and receive messages to friends, family and colleagues on
@@ -53,7 +74,7 @@ mkDerivation rec {
     '';
     homepage = "https://beeper.com";
     license = licenses.unfree;
-    maintainers = with maintainers; [ jshcmpbll ];
+    maintainers = with maintainers; [ jshcmpbll mjm edmundmiller ];
     platforms = [ "x86_64-linux" ];
   };
 }

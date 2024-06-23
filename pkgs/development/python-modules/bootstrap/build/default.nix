@@ -1,49 +1,76 @@
-{ lib
-, stdenv
-, python
-, build
-, flit-core
-, installer
-, packaging
-, pyproject-hooks
-, tomli
+{
+  lib,
+  stdenv,
+  python,
+  build,
+  flit-core,
+  installer,
+  packaging,
+  pyproject-hooks,
+  tomli,
+  makeWrapper,
 }:
 let
-  buildBootstrapPythonModule = basePackage: attrs: stdenv.mkDerivation ({
-    pname = "${python.libPrefix}-bootstrap-${basePackage.pname}";
-    inherit (basePackage) version src meta;
+  buildBootstrapPythonModule =
+    basePackage: attrs:
+    stdenv.mkDerivation (
+      {
+        pname = "${python.libPrefix}-bootstrap-${basePackage.pname}";
+        inherit (basePackage) version src meta;
 
-    buildPhase = ''
-      runHook preBuild
+        nativeBuildInputs = [ makeWrapper ];
 
-      PYTHONPATH="${flit-core}/${python.sitePackages}" \
-        ${python.interpreter} -m flit_core.wheel
+        buildPhase = ''
+          runHook preBuild
 
-      runHook postBuild
-    '';
+          PYTHONPATH="${flit-core}/${python.sitePackages}" \
+            ${python.interpreter} -m flit_core.wheel
 
-    installPhase = ''
-      runHook preInstall
+          runHook postBuild
+        '';
 
-      PYTHONPATH="${installer}/${python.sitePackages}" \
-        ${python.interpreter} -m installer \
-          --destdir "$out" --prefix "" dist/*.whl
+        installPhase = ''
+          runHook preInstall
 
-      runHook postInstall
-    '';
-  } // attrs);
+          PYTHONPATH="${installer}/${python.sitePackages}" \
+            ${python.interpreter} -m installer \
+              --destdir "$out" --prefix "" dist/*.whl
 
-  bootstrap-packaging = buildBootstrapPythonModule packaging {};
+          runHook postInstall
+        '';
+      }
+      // attrs
+    );
 
-  bootstrap-pyproject-hooks = buildBootstrapPythonModule pyproject-hooks {};
+  bootstrap-packaging = buildBootstrapPythonModule packaging { };
 
-  bootstrap-tomli = buildBootstrapPythonModule tomli {};
+  bootstrap-pyproject-hooks = buildBootstrapPythonModule pyproject-hooks { };
+
+  bootstrap-tomli = buildBootstrapPythonModule tomli { };
+
+  sitePkgs = python.sitePackages;
 in
 buildBootstrapPythonModule build {
-  propagatedBuildInputs = [
-    bootstrap-packaging
-    bootstrap-pyproject-hooks
-  ] ++ lib.optionals (python.pythonOlder "3.11") [
-    bootstrap-tomli
-  ];
+  # like the installPhase above, but wrapping the pyproject-build command
+  #   to set up PYTHONPATH with the correct dependencies.
+  # This allows using `pyproject-build` without propagating its dependencies
+  #   into the build environment, which is necessary to prevent
+  #   pythonCatchConflicts from raising false positive alerts.
+  # This would happen whenever the package to build has a dependency on
+  #   another version of a package that is also a dependency of pyproject-build.
+  installPhase = ''
+    runHook preInstall
+
+    PYTHONPATH="${installer}/${python.sitePackages}" \
+      ${python.interpreter} -m installer \
+        --destdir "$out" --prefix "" dist/*.whl
+
+    wrapProgram $out/bin/pyproject-build \
+      --prefix PYTHONPATH : "$out/${sitePkgs}" \
+      --prefix PYTHONPATH : "${bootstrap-pyproject-hooks}/${sitePkgs}" \
+      --prefix PYTHONPATH : "${bootstrap-packaging}/${sitePkgs}" \
+      --prefix PYTHONPATH : "${bootstrap-tomli}/${sitePkgs}"
+
+    runHook postInstall
+  '';
 }

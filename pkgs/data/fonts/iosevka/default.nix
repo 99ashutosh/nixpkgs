@@ -54,17 +54,17 @@ assert (privateBuildPlan != null) -> set != null;
 assert (extraParameters != null) -> set != null;
 
 buildNpmPackage rec {
-  pname = if set != null then "iosevka-${set}" else "iosevka";
-  version = "27.0.0";
+  pname = "Iosevka${toString set}";
+  version = "30.2.0";
 
   src = fetchFromGitHub {
     owner = "be5invis";
     repo = "iosevka";
     rev = "v${version}";
-    hash = "sha256-LXQ7F+hEsPfve9yKEYav1O+ZN7uZqK8YmMT0Pr5FQpc=";
+    hash = "sha256-L08xBKZHFFByemEa4GgwQRr+wRCocuT/RO+hV/S+hFA=";
   };
 
-  npmDepsHash = "sha256-SAdKtX+BuU0/me4ECzrKLRJRW6LzGZO2ehAB9iWRVF8=";
+  npmDepsHash = "sha256-oRV6QVcJiVKvUtfrewTtnmlIMDaGknn0lEHdcNM3V2g=";
 
   nativeBuildInputs = [
     remarshal
@@ -88,29 +88,29 @@ buildNpmPackage rec {
     ) [ "buildPlan" ];
 
   configurePhase = ''
-    runHook preConfigure
-    ${lib.optionalString (builtins.isAttrs privateBuildPlan) ''
-      remarshal -i "$buildPlanPath" -o private-build-plans.toml -if json -of toml
-    ''}
-    ${lib.optionalString (builtins.isString privateBuildPlan
-      && (!lib.hasPrefix builtins.storeDir privateBuildPlan)) ''
-        cp "$buildPlanPath" private-build-plans.toml
+      runHook preConfigure
+      ${lib.optionalString (builtins.isAttrs privateBuildPlan) ''
+        remarshal -i "$buildPlanPath" -o private-build-plans.toml -if json -of toml
       ''}
-    ${lib.optionalString (builtins.isString privateBuildPlan
-      && (lib.hasPrefix builtins.storeDir privateBuildPlan)) ''
-        cp "$buildPlan" private-build-plans.toml
+      ${lib.optionalString (builtins.isString privateBuildPlan
+    && (!lib.hasPrefix builtins.storeDir privateBuildPlan)) ''
+          cp "$buildPlanPath" private-build-plans.toml
+        ''}
+      ${lib.optionalString (builtins.isString privateBuildPlan
+    && (lib.hasPrefix builtins.storeDir privateBuildPlan)) ''
+          cp "$buildPlan" private-build-plans.toml
+        ''}
+      ${lib.optionalString (extraParameters != null) ''
+        echo -e "\n" >> params/parameters.toml
+        cat "$extraParametersPath" >> params/parameters.toml
       ''}
-    ${lib.optionalString (extraParameters != null) ''
-      echo -e "\n" >> params/parameters.toml
-      cat "$extraParametersPath" >> params/parameters.toml
-    ''}
-    runHook postConfigure
+      runHook postConfigure
   '';
 
   buildPhase = ''
     export HOME=$TMPDIR
     runHook preBuild
-    npm run build --no-update-notifier -- --jCmd=$NIX_BUILD_CORES --verbose=9 ttf::$pname
+    npm run build --no-update-notifier --targets ttf::$pname -- --jCmd=$NIX_BUILD_CORES --verbose=9
     runHook postBuild
   '';
 
@@ -118,7 +118,7 @@ buildNpmPackage rec {
     runHook preInstall
     fontdir="$out/share/fonts/truetype"
     install -d "$fontdir"
-    install "dist/$pname/ttf"/* "$fontdir"
+    install "dist/$pname/TTF"/* "$fontdir"
     runHook postInstall
   '';
 
@@ -127,7 +127,7 @@ buildNpmPackage rec {
   meta = with lib; {
     homepage = "https://typeof.net/Iosevka/";
     downloadPage = "https://github.com/be5invis/Iosevka/releases";
-    description = "Versatile typeface for code, from code.";
+    description = "Versatile typeface for code, from code";
     longDescription = ''
       Iosevka is an open-source, sans-serif + slab-serif, monospace +
       quasi‑proportional typeface family, designed for writing code, using in
@@ -136,10 +136,7 @@ buildNpmPackage rec {
     license = licenses.ofl;
     platforms = platforms.all;
     maintainers = with maintainers; [
-      cstrahan
-      jfrankenau
       ttuegel
-      babariviere
       rileyinman
       AluisioASG
       lunik1

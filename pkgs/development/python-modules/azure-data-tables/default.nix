@@ -1,23 +1,24 @@
-{ lib
-, azure-core
-, buildPythonPackage
-, fetchPypi
-, isodate
-, pythonOlder
-, typing-extensions
-, yarl
+{
+  lib,
+  azure-core,
+  buildPythonPackage,
+  fetchPypi,
+  isodate,
+  pythonOlder,
+  typing-extensions,
+  yarl,
 }:
 
 buildPythonPackage rec {
   pname = "azure-data-tables";
-  version = "12.4.4";
+  version = "12.5.0";
   format = "setuptools";
 
-  disabled = pythonOlder "3.7";
+  disabled = pythonOlder "3.8";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-HWjIQBWYmU43pSxKLcwx45EExn10jeEkyY9Hpbyn0vw=";
+    hash = "sha256-7qOTpjgMQusD6AeCXAN4MgA9CcgjKUgx2hXoEVWgtOY=";
   };
 
   propagatedBuildInputs = [
@@ -30,9 +31,7 @@ buildPythonPackage rec {
   # Module has no tests
   doCheck = false;
 
-  pythonImportsCheck = [
-    "azure.data.tables"
-  ];
+  pythonImportsCheck = [ "azure.data.tables" ];
 
   meta = with lib; {
     description = "NoSQL data storage service that can be accessed from anywhere";

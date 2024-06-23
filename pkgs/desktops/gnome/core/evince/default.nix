@@ -23,12 +23,11 @@
 , libarchive
 , libhandy
 , libsecret
-, wrapGAppsHook
+, wrapGAppsHook3
 , librsvg
 , gobject-introspection
 , yelp-tools
 , gspell
-, adwaita-icon-theme
 , gsettings-desktop-schemas
 , gnome-desktop
 , dbus
@@ -41,16 +40,20 @@
 , withLibsecret ? true
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "evince";
-  version = "44.3";
+  version = "46.3";
 
   outputs = [ "out" "dev" "devdoc" ];
 
   src = fetchurl {
-    url = "mirror://gnome/sources/evince/${lib.versions.major version}/${pname}-${version}.tar.xz";
-    sha256 = "O4uhWBpHpun1f2tqoI8PtnVJxgEhqiTjEUDpOUe4NiI=";
+    url = "mirror://gnome/sources/evince/${lib.versions.major finalAttrs.version}/evince-${finalAttrs.version}.tar.xz";
+    hash = "sha256-vA0dQbnX/8di6Z0qv6+sv3RRgvCzHYbbXuyMZ/XzAGs=";
   };
+
+  depsBuildBuild = [
+    pkg-config
+  ];
 
   nativeBuildInputs = [
     appstream
@@ -62,12 +65,11 @@ stdenv.mkDerivation rec {
     meson
     ninja
     pkg-config
-    wrapGAppsHook
+    wrapGAppsHook3
     yelp-tools
   ];
 
   buildInputs = [
-    adwaita-icon-theme
     atk
     dbus # only needed to find the service directory
     djvulibre
@@ -108,8 +110,6 @@ stdenv.mkDerivation rec {
     "-Dmultimedia=disabled"
   ];
 
-  env.NIX_CFLAGS_COMPILE = "-I${glib.dev}/include/gio-unix-2.0";
-
   preFixup = ''
     gappsWrapperArgs+=(--prefix XDG_DATA_DIRS : "${shared-mime-info}/share")
   '';
@@ -121,12 +121,12 @@ stdenv.mkDerivation rec {
 
   passthru = {
     updateScript = gnome.updateScript {
-      packageName = pname;
+      packageName = "evince";
     };
   };
 
   meta = with lib; {
-    homepage = "https://wiki.gnome.org/Apps/Evince";
+    homepage = "https://apps.gnome.org/Evince/";
     description = "GNOME's document viewer";
 
     longDescription = ''
@@ -138,6 +138,7 @@ stdenv.mkDerivation rec {
 
     license = licenses.gpl2Plus;
     platforms = platforms.unix;
+    mainProgram = "evince";
     maintainers = teams.gnome.members ++ teams.pantheon.members;
   };
-}
+})

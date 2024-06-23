@@ -6,9 +6,16 @@
 , qtmacextras ? null
 , qmake
 , fixDarwinDylibNames
+, darwin
 }:
 
-stdenv.mkDerivation rec {
+let
+  stdenv' = if stdenv.isDarwin then
+    darwin.apple_sdk_11_0.stdenv
+  else
+    stdenv
+  ;
+in stdenv'.mkDerivation rec {
   pname = "qscintilla-qt5";
   version = "2.13.2";
 
@@ -44,7 +51,7 @@ stdenv.mkDerivation rec {
   '';
 
   meta = with lib; {
-    description = "A Qt port of the Scintilla text editing library";
+    description = "Qt port of the Scintilla text editing library";
     longDescription = ''
       QScintilla is a port to Qt of Neil Hodgson's Scintilla C++ editor
       control.

@@ -2,27 +2,32 @@
 , lib
 , gitUpdater
 , fetchFromGitHub
+, testers
 , cmake
 , pkg-config
 , boost
 , gtest
 , wayland
+, wayland-scanner
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "wlcs";
-  version = "1.6.0";
+  version = "1.7.0";
 
   src = fetchFromGitHub {
     owner = "MirServer";
     repo = "wlcs";
-    rev = "v${version}";
-    hash = "sha256-+YM5dT45p9wk0gJeATmhWDFJJMaUdcTfw8GLS/vMkw4=";
+    rev = "v${finalAttrs.version}";
+    hash = "sha256-BQPRymkbGu4YvTYXTaTMuyP5fHpqMWI4xPwjDRHZNEQ=";
   };
+
+  strictDeps = true;
 
   nativeBuildInputs = [
     cmake
     pkg-config
+    wayland-scanner
   ];
 
   buildInputs = [
@@ -31,8 +36,11 @@ stdenv.mkDerivation rec {
     wayland
   ];
 
-  passthru.updateScript = gitUpdater {
-    rev-prefix = "v";
+  passthru = {
+    tests.pkg-config = testers.testMetaPkgConfig finalAttrs.finalPackage;
+    updateScript = gitUpdater {
+      rev-prefix = "v";
+    };
   };
 
   meta = with lib; {
@@ -53,9 +61,12 @@ stdenv.mkDerivation rec {
       compositor and back again.
     '';
     homepage = "https://github.com/MirServer/wlcs";
-    changelog = "https://github.com/MirServer/wlcs/releases/tag/v${version}";
+    changelog = "https://github.com/MirServer/wlcs/releases/tag/v${finalAttrs.version}";
     license = licenses.gpl3Only;
     maintainers = with maintainers; [ OPNA2608 ];
     platforms = platforms.linux;
+    pkgConfigModules = [
+      "wlcs"
+    ];
   };
-}
+})

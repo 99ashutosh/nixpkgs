@@ -5,22 +5,22 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "rsonpath";
-  version = "0.8.0";
+  version = "0.9.1";
 
   src = fetchFromGitHub {
     owner = "v0ldek";
     repo = "rsonpath";
     rev = "v${version}";
-    hash = "sha256-WrapSvWoaBVxlpCxau70Et5K9tRs84xsXBDWsuoFI+E=";
+    hash = "sha256-3q0q9Bj/DPuDmHu2G9jrABFXU8xgbUUS7iTBguVWR5s=";
   };
 
-  cargoHash = "sha256-fGu6eypizOGHCiyAeH7nCLHyfVLMBPNU1xmqfVGhSzw=";
+  cargoHash = "sha256-bh72u1AvM6bGNQCjyu6GdAiK0jw5lE0SIdYzaZEjYg8=";
 
   cargoBuildFlags = [ "-p=rsonpath" ];
   cargoTestFlags = cargoBuildFlags;
 
   meta = with lib; {
-    description = "Blazing fast Rust JSONPath query engine";
+    description = "Experimental JSONPath engine for querying massive streamed datasets";
     homepage = "https://github.com/v0ldek/rsonpath";
     changelog = "https://github.com/v0ldek/rsonpath/blob/${src.rev}/CHANGELOG.md";
     license = licenses.mit;

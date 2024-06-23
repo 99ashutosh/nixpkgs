@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchurl, openjdk, glib, wrapGAppsHook, zstd }:
+{ lib, stdenv, fetchurl, openjdk, glib, dpkg, wrapGAppsHook3 }:
 
 stdenv.mkDerivation rec {
   pname = "bluej";
@@ -12,20 +12,8 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-sOT86opMa9ytxJlfURIsD06HiP+j+oz3lQ0DqmLV1wE=";
   };
 
-  nativeBuildInputs = [ zstd wrapGAppsHook ];
+  nativeBuildInputs = [ dpkg wrapGAppsHook3 ];
   buildInputs = [ glib ];
-
-  sourceRoot = ".";
-
-  preUnpack = ''
-    unpackCmdHooks+=(_tryDebData)
-    _tryDebData() {
-      if ! [[ "$1" =~ \.deb$ ]]; then return 1; fi
-      ar xf $src
-      if ! [[ -e data.tar.zst ]]; then return 1; fi
-      unpackFile data.tar.zst
-    }
-  '';
 
   dontWrapGApps = true;
 
@@ -34,6 +22,10 @@ stdenv.mkDerivation rec {
 
     mkdir -p $out
     cp -r usr/* $out
+
+    rm -r $out/share/bluej/jdk
+    rm -r $out/share/bluej/javafx
+    rm -r $out/share/bluej/javafx-*.jar
 
     makeWrapper ${openjdk}/bin/java $out/bin/bluej \
       "''${gappsWrapperArgs[@]}" \
@@ -45,10 +37,11 @@ stdenv.mkDerivation rec {
   '';
 
   meta = with lib; {
-    description = "A simple integrated development environment for Java";
+    description = "Simple integrated development environment for Java";
     homepage = "https://www.bluej.org/";
     sourceProvenance = with sourceTypes; [ binaryBytecode ];
     license = licenses.gpl2ClasspathPlus;
+    mainProgram = "bluej";
     maintainers = with maintainers; [ chvp ];
     platforms = platforms.linux;
   };

@@ -1,35 +1,35 @@
-{ lib
-, buildPythonPackage
-, pythonOlder
-, fetchFromGitHub
-, setuptools
-, jinja2
-, pygments
-, markupsafe
-, astunparse
-, pytestCheckHook
-, hypothesis
+{
+  lib,
+  buildPythonPackage,
+  pythonOlder,
+  fetchFromGitHub,
+  setuptools,
+  jinja2,
+  pdoc-pyo3-sample-library,
+  pygments,
+  markupsafe,
+  astunparse,
+  pytestCheckHook,
+  hypothesis,
 }:
 
 buildPythonPackage rec {
   pname = "pdoc";
-  version = "14.0.0";
+  version = "14.5.0";
   disabled = pythonOlder "3.8";
 
-  format = "pyproject";
+  pyproject = true;
 
   src = fetchFromGitHub {
     owner = "mitmproxy";
     repo = "pdoc";
     rev = "v${version}";
-    hash = "sha256-rMHp0diXvWIOyucuTAXO/IOljKhDYOZKtkih5+rUJCM=";
+    hash = "sha256-lie+lPUVWVgbSGC09gMmy4Z2BdC2CHFYQ60isExvhSk=";
   };
 
-  nativeBuildInputs = [
-    setuptools
-  ];
+  nativeBuildInputs = [ setuptools ];
 
-  propagatedBuildInputs = [
+  dependencies = [
     jinja2
     pygments
     markupsafe
@@ -38,6 +38,7 @@ buildPythonPackage rec {
   nativeCheckInputs = [
     pytestCheckHook
     hypothesis
+    pdoc-pyo3-sample-library
   ];
   disabledTestPaths = [
     # "test_snapshots" tries to match generated output against stored snapshots,
@@ -57,6 +58,7 @@ buildPythonPackage rec {
     changelog = "https://github.com/mitmproxy/pdoc/blob/${src.rev}/CHANGELOG.md";
     homepage = "https://pdoc.dev/";
     description = "API Documentation for Python Projects";
+    mainProgram = "pdoc";
     license = licenses.unlicense;
     maintainers = with maintainers; [ pbsds ];
   };

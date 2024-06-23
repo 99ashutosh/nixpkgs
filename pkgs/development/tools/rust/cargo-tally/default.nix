@@ -2,14 +2,14 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "cargo-tally";
-  version = "1.0.29";
+  version = "1.0.46";
 
   src = fetchCrate {
     inherit pname version;
-    sha256 = "sha256-SCxigQ6jhT+r6ixgCGwWDtvU8WUJ+5eWYe8DIWPBWhY=";
+    hash = "sha256-wQo9HDVb7m+FdrMnNVAESEK3k3wrsZYvVpIMu2YNhS8=";
   };
 
-  cargoSha256 = "sha256-ZX2T+wKIgYJqOK6118wmsMBKigtJvPqJ2hVtyh23zUk=";
+  cargoHash = "sha256-tj9bbT7UlsVbEibtomB7rFK/V6Jdo5K0uoeuXw1yq+o=";
 
   buildInputs = lib.optionals stdenv.isDarwin (with darwin.apple_sdk_11_0.frameworks; [
     DiskArbitration
@@ -19,6 +19,7 @@ rustPlatform.buildRustPackage rec {
 
   meta = with lib; {
     description = "Graph the number of crates that depend on your crate over time";
+    mainProgram = "cargo-tally";
     homepage = "https://github.com/dtolnay/cargo-tally";
     changelog = "https://github.com/dtolnay/cargo-tally/releases/tag/${version}";
     license = with licenses; [ asl20 /* or */ mit ];

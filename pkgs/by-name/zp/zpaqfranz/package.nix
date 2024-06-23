@@ -6,13 +6,13 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "zpaqfranz";
-  version = "58.9";
+  version = "59.8";
 
   src = fetchFromGitHub {
     owner = "fcorbelli";
     repo = "zpaqfranz";
     rev = finalAttrs.version;
-    hash = "sha256-R7LA7gu2q2Kk+FPCLZedwrlICk6OUao/EJHEvxA1+Nc=";
+    hash = "sha256-N3R/M0TS8XzRilQT4NFqIlfo2NqfunA38IrQBz5uaPg=";
   };
 
   nativeBuildInputs = [
@@ -39,6 +39,7 @@ stdenv.mkDerivation (finalAttrs: {
   meta = {
     homepage = "https://github.com/fcorbelli/zpaqfranz";
     description = "Advanced multiversioned deduplicating archiver, with HW acceleration, encryption and paranoid-level tests";
+    mainProgram = "zpaqfranz";
     license = with lib.licenses; [ mit ];
     maintainers = with lib.maintainers; [ AndersonTorres ];
     platforms = lib.platforms.unix;

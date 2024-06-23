@@ -1,6 +1,5 @@
 { lib
 , stdenv
-, rust
 , rustPlatform
 , fetchFromGitHub
 , substituteAll
@@ -8,13 +7,12 @@
 , pkg-config
 , wrapGAppsHook4
 , cairo
+, dbus
 , gdk-pixbuf
 , glib
 , graphene
-, gtk3
 , gtk4
 , libadwaita
-, libappindicator-gtk3
 , librclone
 , pango
 , rclone
@@ -22,23 +20,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "celeste";
-  version = "0.5.8";
+  version = "0.8.1";
 
   src = fetchFromGitHub {
     owner = "hwittenborn";
     repo = "celeste";
     rev = "v${version}";
-    hash = "sha256-U/6aqQig+uuWj/B9CODnV6chxY+KfMH7DqnPtSTDSA0=";
+    hash = "sha256-fJK3UTa5NS+dSsjnqZtRN3HmHQ1bYU2jepkJ5tchYD4=";
   };
 
-  cargoHash = "sha256-69LK/oicfmSPbUGGzWV9kvXkHqMvEzCG8xCu61MxSdk=";
-
-  patches = [
-    (substituteAll {
-      src = ./target-dir.patch;
-      rustTarget = rust.toRustTarget stdenv.hostPlatform;
-    })
-  ];
+  cargoHash = "sha256-/0w52bh9CsBoMTJsnWuEAQNgQzf92mbzh53H4iQYswc=";
 
   postPatch = ''
     pushd $cargoDepsCopy/librclone-sys
@@ -56,19 +47,6 @@ rustPlatform.buildRustPackage rec {
     sed -i "#/bin/celeste#d" justfile
   '';
 
-  # Cargo.lock is outdated
-  preConfigure = ''
-    cargo update --offline
-  '';
-
-  # We need to build celeste-tray first because celeste/src/launch.rs reads that file at build time.
-  # Upstream does the same: https://github.com/hwittenborn/celeste/blob/765dfa2/justfile#L1-L3
-  cargoBuildFlags = [ "--bin" "celeste-tray" ];
-  postConfigure = ''
-    cargoBuildHook
-    cargoBuildFlags=
-  '';
-
   RUSTC_BOOTSTRAP = 1;
 
   nativeBuildInputs = [
@@ -80,10 +58,10 @@ rustPlatform.buildRustPackage rec {
 
   buildInputs = [
     cairo
+    dbus
     gdk-pixbuf
     glib
     graphene
-    gtk3
     gtk4
     libadwaita
     librclone
@@ -92,7 +70,6 @@ rustPlatform.buildRustPackage rec {
 
   preFixup = ''
     gappsWrapperArgs+=(
-      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ libappindicator-gtk3 ]}"
       --prefix PATH : "${lib.makeBinPath [ rclone ]}"
     )
   '';
@@ -104,6 +81,7 @@ rustPlatform.buildRustPackage rec {
   meta = {
     changelog = "https://github.com/hwittenborn/celeste/blob/${src.rev}/CHANGELOG.md";
     description = "GUI file synchronization client that can sync with any cloud provider";
+    mainProgram = "celeste";
     homepage = "https://github.com/hwittenborn/celeste";
     license = lib.licenses.gpl3Only;
     maintainers = with lib.maintainers; [ dotlambda ];

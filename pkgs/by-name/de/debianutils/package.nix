@@ -2,23 +2,25 @@
 , stdenv
 , fetchFromGitLab
 , autoreconfHook
+, perl
 , po4a
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "debianutils";
-  version = "5.13";
+  version = "5.19";
 
   src = fetchFromGitLab {
     domain = "salsa.debian.org";
     owner = "debian";
     repo = "debianutils";
     rev = "debian/${finalAttrs.version}";
-    hash = "sha256-h6swRil0sldRaZT7/LMEmV6Ah3zoppiHeGO3xTJlrac=";
+    hash = "sha256-2YJgHwjD1JyqzdYaicrgKHA/a5KdkdPJnhGQxoq/KpU=";
   };
 
   nativeBuildInputs = [
     autoreconfHook
+    perl
     po4a
   ];
 

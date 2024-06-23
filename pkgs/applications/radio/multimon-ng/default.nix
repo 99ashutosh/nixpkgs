@@ -2,13 +2,13 @@
 
 stdenv.mkDerivation rec {
   pname = "multimon-ng";
-  version = "1.2.0";
+  version = "1.3.0";
 
   src = fetchFromGitHub {
     owner = "EliasOenal";
     repo = "multimon-ng";
     rev = version;
-    sha256 = "sha256-Qk9zg3aSrEfC16wQqL/EMG6MPobX8dnJ1OLH8EMap0I=";
+    sha256 = "sha256-IJnvOVajkcjaa0DDo8hbkkVvBnDqPKQUN8wJHlafo70=";
   };
 
   buildInputs = lib.optionals stdenv.isLinux [ libpulseaudio libX11 ];
@@ -21,6 +21,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     description = "Multimon is a digital baseband audio protocol decoder";
+    mainProgram = "multimon-ng";
     longDescription = ''
       multimon-ng a fork of multimon, a digital baseband audio
       protocol decoder for common signaling modes in commercial and

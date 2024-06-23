@@ -11,6 +11,7 @@
 , libxml2
 , libzip
 , ncurses
+, xlsSupport ? false
 }:
 
 stdenv.mkDerivation rec {
@@ -35,11 +36,12 @@ stdenv.mkDerivation rec {
 
   buildInputs = [
     gnuplot
-    libxls
-    libxlsxwriter
     libxml2
     libzip
     ncurses
+  ] ++ lib.optionals xlsSupport [
+    libxls
+    libxlsxwriter
   ];
 
   makeFlags = [ "prefix=${placeholder "out"}" ];
@@ -51,7 +53,7 @@ stdenv.mkDerivation rec {
   meta = with lib; {
     changelog = "https://github.com/andmarti1424/sc-im/blob/${src.rev}/CHANGES";
     homepage = "https://github.com/andmarti1424/sc-im";
-    description = "An ncurses spreadsheet program for terminal";
+    description = "Ncurses spreadsheet program for terminal";
     license = licenses.bsdOriginal;
     maintainers = with maintainers; [ dotlambda ];
     platforms = platforms.unix;

@@ -36,7 +36,7 @@ lib.optionals (lib.versionAtLeast version "11.0")
 
 (let
   targetPlatformSlash =
-    if hostPlatform.config == targetPlatform.config
+    if hostPlatform == targetPlatform
     then ""
     else "${targetPlatform.config}/";
 
@@ -82,10 +82,6 @@ in
     # (i.e. libgccjit, gnat, etc) to avoid potential confusion
     lib.optionalString (!langC) ''
       rm -f $out/lib/libgcc_s.so*
-    ''
-    + lib.optionalString (hostPlatform.config != targetPlatform.config) ''
-      mkdir -p $lib/lib/
-      ln -s ${targetPlatformSlash}lib $lib/lib
     ''
 
     # TODO(amjoseph): remove the `libgcc_s.so` symlinks below and replace them

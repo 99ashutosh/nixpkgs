@@ -1,13 +1,15 @@
-{ lib
-, aiohttp
-, buildPythonPackage
-, fetchPypi
-, pythonOlder
+{
+  lib,
+  aiohttp,
+  buildPythonPackage,
+  fetchPypi,
+  pythonOlder,
 }:
 
 buildPythonPackage rec {
   pname = "aioymaps";
   version = "1.2.3";
+  format = "setuptools";
 
   disabled = pythonOlder "3.6";
 
@@ -16,9 +18,7 @@ buildPythonPackage rec {
     hash = "sha256-pW8FoMdA8XdQZmLRwk5SBBgFhYhgEMJPA9+b+8aicuE=";
   };
 
-  propagatedBuildInputs = [
-    aiohttp
-  ];
+  propagatedBuildInputs = [ aiohttp ];
 
   # Project has no tests
   doCheck = false;

@@ -11,6 +11,7 @@
 , perl
 , luajit
 , darwin
+, libiconv
 , python3
 }:
 
@@ -127,7 +128,7 @@ stdenv.mkDerivation {
       --replace " -L${stdenv.cc.libc}/lib" "" \
       --replace " -L${darwin.libobjc}/lib" "" \
       --replace " -L${darwin.libunwind}/lib" "" \
-      --replace " -L${darwin.libiconv}/lib" ""
+      --replace " -L${libiconv}/lib" ""
 
     # All the libraries we stripped have -osx- in their name as of this time.
     # Assert now that this pattern no longer appears in config.mk.
@@ -180,7 +181,7 @@ stdenv.mkDerivation {
     description = "Vim - the text editor - for macOS";
     homepage    = "https://github.com/macvim-dev/macvim";
     license = licenses.vim;
-    maintainers = with maintainers; [ cstrahan lilyball ];
+    maintainers = with maintainers; [ lilyball ];
     platforms   = platforms.darwin;
     hydraPlatforms = []; # hydra can't build this as long as we rely on Xcode and sandboxProfile
   };

@@ -31,6 +31,9 @@ stdenv.mkDerivation rec {
     mv usr $out
     mv opt $out
 
+    # binary is not used and probably vulnerable to CVE(s)
+    rm $out/opt/TheDesk/thedesk
+
     substituteInPlace $out/share/applications/thedesk.desktop \
       --replace '/opt/TheDesk' $out/bin
 
@@ -45,7 +48,8 @@ stdenv.mkDerivation rec {
     homepage = "https://thedesk.top";
     sourceProvenance = with sourceTypes; [ binaryNativeCode ];
     license = licenses.gpl3Only;
-    maintainers = with maintainers; [ wolfangaukang ];
+    maintainers = [ ];
     platforms = [ "x86_64-linux" ];
+    mainProgram = "thedesk";
   };
 }

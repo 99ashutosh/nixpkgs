@@ -8,16 +8,16 @@
 
 buildGoModule rec {
   pname = "gnmic";
-  version = "0.31.7";
+  version = "0.37.0";
 
   src = fetchFromGitHub {
     owner = "openconfig";
     repo = pname;
     rev = "v${version}";
-    hash = "sha256-bX8oZk0psPqoXFU8b2JQmfFaPz18yiuSVXDmhoOnpFg=";
+    hash = "sha256-PktDdwtdCHLgLVpCRLi+Rna7dO2JeAAT6myFesIhpYc=";
   };
 
-  vendorHash = "sha256-hIG3kG2e9Y2hnHJ+96cPLgnlp5ParsLgWQY0HZTDggY=";
+  vendorHash = "sha256-gxtVvh39VqJgS5VetnLpUyKJE8DcUZgn4MA8zdD/ccU=";
 
   ldflags = [
     "-s" "-w"
@@ -41,5 +41,6 @@ buildGoModule rec {
     changelog = "https://github.com/openconfig/gnmic/releases/tag/${src.rev}";
     license = licenses.asl20;
     maintainers = with maintainers; [ vincentbernat ];
+    mainProgram = "gnmic";
   };
 }

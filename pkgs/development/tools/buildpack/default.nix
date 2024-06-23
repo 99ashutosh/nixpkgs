@@ -2,16 +2,16 @@
 
 buildGoModule rec {
   pname = "pack";
-  version = "0.30.0";
+  version = "0.34.2";
 
   src = fetchFromGitHub {
     owner = "buildpacks";
     repo = pname;
     rev = "v${version}";
-    hash = "sha256-o9c1MUxyZpqk10UbW5y9JqX2Z62K7hDeSEiFGIUnoAs=";
+    hash = "sha256-1s/0eBRnir2MyrDALcOi5drCIJVkrPBB4RXKX08mxKs=";
   };
 
-  vendorHash = "sha256-k2ZgFjSO3yHS0pO7xZx6a5E4J35ou2AmjbiV2M9OGTk=";
+  vendorHash = "sha256-jhgTHhiQUDf9738Zusk1SxEae9G6MQapBRq7DBN5Tuc=";
 
   nativeBuildInputs = [ installShellFiles ];
 
@@ -30,7 +30,8 @@ buildGoModule rec {
     homepage = "https://buildpacks.io/";
     changelog = "https://github.com/buildpacks/pack/releases/tag/v${version}";
     description = "CLI for building apps using Cloud Native Buildpacks";
+    mainProgram = "pack";
     license = licenses.asl20;
-    maintainers = [ maintainers.marsam ];
+    maintainers = [ ];
   };
 }

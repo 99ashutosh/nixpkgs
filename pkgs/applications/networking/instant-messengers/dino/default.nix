@@ -1,5 +1,6 @@
 { lib, stdenv, fetchFromGitHub
-, vala, cmake, ninja, wrapGAppsHook, pkg-config, gettext
+, buildPackages
+, vala, cmake, ninja, wrapGAppsHook4, pkg-config, gettext
 , gobject-introspection, glib, gdk-pixbuf, gtk4, glib-networking
 , libadwaita
 , libnotify, libsoup, libgee
@@ -33,6 +34,12 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-smy/t6wTCnG0kuRFKwyeLENKqOQDhL0fZTtj3BHo6kw=";
   };
 
+  patches = [
+    # fixes build failure https://github.com/dino/dino/issues/1576
+    # backport of https://github.com/dino/dino/commit/657502955567dd538e56f300e075c7db52e25d74
+    ./fix-compile-new-vala-c.diff
+  ];
+
   postPatch = ''
     # don't overwrite manually set version information
     substituteInPlace CMakeLists.txt \
@@ -44,7 +51,7 @@ stdenv.mkDerivation rec {
     cmake
     ninja # https://github.com/dino/dino/issues/230
     pkg-config
-    wrapGAppsHook
+    wrapGAppsHook4
     gettext
     gobject-introspection
   ];
@@ -86,6 +93,10 @@ stdenv.mkDerivation rec {
     "-DVERSION_FOUND=true"
     "-DVERSION_IS_RELEASE=true"
     "-DVERSION_FULL=${version}"
+    "-DXGETTEXT_EXECUTABLE=${lib.getBin buildPackages.gettext}/bin/xgettext"
+    "-DMSGFMT_EXECUTABLE=${lib.getBin buildPackages.gettext}/bin/msgfmt"
+    "-DGLIB_COMPILE_RESOURCES_EXECUTABLE=${lib.getDev buildPackages.glib}/bin/glib-compile-resources"
+    "-DSOUP_VERSION=${lib.versions.major libsoup.version}"
   ];
 
   # Undefined symbols for architecture arm64: "_gpg_strerror"
@@ -116,6 +127,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     description = "Modern Jabber/XMPP Client using GTK/Vala";
+    mainProgram = "dino";
     homepage = "https://github.com/dino/dino";
     license = licenses.gpl3Plus;
     platforms = platforms.linux ++ platforms.darwin;

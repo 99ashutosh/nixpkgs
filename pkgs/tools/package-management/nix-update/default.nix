@@ -9,14 +9,14 @@
 
 python3.pkgs.buildPythonApplication rec {
   pname = "nix-update";
-  version = "0.19.3";
+  version = "1.3.1";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "Mic92";
     repo = pname;
     rev = version;
-    hash = "sha256-+WD+SV/L3TvksWBIg6jk+T0dUTNdp4VKONzdzVT+pac=";
+    hash = "sha256-QWfW8tI4tk8hk9eNN6/3i2E4rwfIWgqjxj+htSZVdrc=";
   };
 
   nativeBuildInputs = [
@@ -37,6 +37,7 @@ python3.pkgs.buildPythonApplication rec {
     changelog = "https://github.com/Mic92/nix-update/releases/tag/${version}";
     license = licenses.mit;
     maintainers = with maintainers; [ figsoda mic92 zowoq ];
+    mainProgram = "nix-update";
     platforms = platforms.all;
   };
 }

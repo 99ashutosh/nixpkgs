@@ -6,6 +6,7 @@
 , pkg-config
 , installShellFiles
 , darwin
+, bash
 
   # rbw-fzf
 , withFzf ? false
@@ -24,22 +25,23 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "rbw";
-  version = "1.8.3";
+  version = "1.10.2";
 
   src = fetchzip {
     url = "https://git.tozt.net/rbw/snapshot/rbw-${version}.tar.gz";
-    sha256 = "sha256-dC/x+ihH1POIFN/8pbk967wATXKU4YVBGI0QCo8d+SY=";
+    hash = "sha256-ScVXtNk2QtfAQn6PtQkbDJNLWAu49l55s6Zpf1fiVjM=";
   };
 
-  cargoHash = "sha256-nI1Pf7gREbAk+JVF3Gn2j8OqprexCQ5fVvECtq2aBPM=";
+  cargoHash = "sha256-ii0401TTDm1ySRGOcSmPts/10wTguxsx8h7wA4FsgQk=";
 
   nativeBuildInputs = [
     installShellFiles
   ] ++ lib.optionals stdenv.isLinux [ pkg-config ];
 
-  buildInputs = lib.optionals stdenv.isDarwin [
-    darwin.apple_sdk.frameworks.Security
-    darwin.apple_sdk.frameworks.AppKit
+  buildInputs = [ bash ] # for git-credential-rbw
+  ++ lib.optionals stdenv.isDarwin [
+    darwin.apple_sdk_11_0.frameworks.Security
+    darwin.apple_sdk_11_0.frameworks.AppKit
   ];
 
   preConfigure = lib.optionalString stdenv.isLinux ''
@@ -74,6 +76,7 @@ rustPlatform.buildRustPackage rec {
     homepage = "https://crates.io/crates/rbw";
     changelog = "https://git.tozt.net/rbw/plain/CHANGELOG.md?id=${version}";
     license = licenses.mit;
-    maintainers = with maintainers; [ albakham luc65r marsam ];
+    maintainers = with maintainers; [ albakham luc65r ];
+    mainProgram = "rbw";
   };
 }

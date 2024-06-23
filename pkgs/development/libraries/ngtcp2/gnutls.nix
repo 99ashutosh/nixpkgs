@@ -6,13 +6,13 @@
 
 stdenv.mkDerivation rec {
   pname = "ngtcp2";
-  version = "0.19.1";
+  version = "1.6.0";
 
   src = fetchFromGitHub {
     owner = "ngtcp2";
     repo = "ngtcp2";
     rev = "v${version}";
-    hash = "sha256-agiQRy/e5VS+ANxajXYi5huRjQQ2M8eddH/AzmwnHdQ=";
+    hash = "sha256-Oaz5LX4R0vriURueQNklZ1dx1r8SWDaeK8oaUadlGtI=";
   };
 
   outputs = [ "out" "dev" ];
@@ -31,7 +31,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     homepage = "https://github.com/ngtcp2/ngtcp2";
-    description = "an effort to implement RFC9000 QUIC protocol.";
+    description = "Effort to implement RFC9000 QUIC protocol";
     license = licenses.mit;
     platforms = platforms.unix;
     maintainers = with maintainers; [ vcunat/* for knot-dns */ ];

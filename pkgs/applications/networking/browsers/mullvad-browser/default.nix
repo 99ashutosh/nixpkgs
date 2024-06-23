@@ -5,13 +5,10 @@
 , copyDesktopItems
 , makeWrapper
 , writeText
-, wrapGAppsHook
+, wrapGAppsHook3
+, autoPatchelfHook
 , callPackage
 
-# Common run-time dependencies
-, zlib
-
-# libxul run-time dependencies
 , atk
 , cairo
 , dbus
@@ -30,19 +27,31 @@
 , mesa
 , pango
 , pciutils
+, zlib
 
 , libnotifySupport ? stdenv.isLinux
 , libnotify
 
+, waylandSupport ? stdenv.isLinux
+, libxkbcommon
+, libdrm
+, libGL
+
+, mediaSupport ? true
+, ffmpeg
+
 , audioSupport ? mediaSupport
-, pulseaudioSupport ? mediaSupport
+
+, pipewireSupport ? audioSupport
+, pipewire
+
+, pulseaudioSupport ? audioSupport
 , libpulseaudio
 , apulse
 , alsa-lib
 
-# Media support (implies audio support)
-, mediaSupport ? true
-, ffmpeg
+, libvaSupport ? mediaSupport
+, libva
 
 # Extra preferences
 , extraPrefs ? ""
@@ -74,19 +83,26 @@ let
       stdenv.cc.libc
       zlib
     ] ++ lib.optionals libnotifySupport [ libnotify ]
+      ++ lib.optionals waylandSupport [ libxkbcommon libdrm libGL ]
+      ++ lib.optionals pipewireSupport [ pipewire ]
       ++ lib.optionals pulseaudioSupport [ libpulseaudio ]
+      ++ lib.optionals libvaSupport [ libva ]
       ++ lib.optionals mediaSupport [ ffmpeg ]
   );
 
-  version = "12.5.4";
+  version = "13.5";
 
   sources = {
     x86_64-linux = fetchurl {
       urls = [
-        "https://cdn.mullvad.net/browser/${version}/mullvad-browser-linux64-${version}_ALL.tar.xz"
-        "https://github.com/mullvad/mullvad-browser/releases/download/${version}/mullvad-browser-linux64-${version}_ALL.tar.xz"
+        "https://cdn.mullvad.net/browser/${version}/mullvad-browser-linux-x86_64-${version}.tar.xz"
+        "https://github.com/mullvad/mullvad-browser/releases/download/${version}/mullvad-browser-linux-x86_64-${version}.tar.xz"
+        "https://archive.torproject.org/tor-package-archive/mullvadbrowser/${version}/mullvad-browser-linux-x86_64-${version}.tar.xz"
+        "https://dist.torproject.org/mullvadbrowser/${version}/mullvad-browser-linux-x86_64-${version}.tar.xz"
+        "https://tor.eff.org/dist/mullvadbrowser/${version}/mullvad-browser-linux-x86_64-${version}.tar.xz"
+        "https://tor.calyxinstitute.org/dist/mullvadbrowser/${version}/mullvad-browser-linux-x86_64-${version}.tar.xz"
       ];
-      hash = "sha256-xjCsCg6XsnXAiNw6frgJVZRV9UBZA2EAcuHa2Bjq/ro=";
+      hash = "sha256-Wz1gYK1CqfK4aa7K2PR8wKx7VcvALquYKA2vetUAdeU=";
     };
   };
 
@@ -109,13 +125,19 @@ stdenv.mkDerivation rec {
 
   src = sources.${stdenv.hostPlatform.system} or (throw "unsupported system: ${stdenv.hostPlatform.system}");
 
-  nativeBuildInputs = [ copyDesktopItems makeWrapper wrapGAppsHook ];
+  nativeBuildInputs = [ copyDesktopItems makeWrapper wrapGAppsHook3 autoPatchelfHook ];
+  buildInputs = [
+    gtk3
+    alsa-lib
+    dbus-glib
+    libXtst
+  ];
 
   preferLocalBuild = true;
   allowSubstitutes = false;
 
   desktopItems = [(makeDesktopItem {
-    name = "mullvadbrowser";
+    name = "mullvad-browser";
     exec = "mullvad-browser %U";
     icon = "mullvad-browser";
     desktopName = "Mullvad Browser";
@@ -186,8 +208,8 @@ stdenv.mkDerivation rec {
     # fonts.conf; upstream uses FONTCONFIG_PATH, but FC_DEBUG=1024
     # indicates the system fonts.conf being used instead.
     FONTCONFIG_FILE=$MB_IN_STORE/fontconfig/fonts.conf
-    sed -i "$FONTCONFIG_FILE" \
-      -e "s,<dir>fonts</dir>,<dir>$MB_IN_STORE/fonts</dir>,"
+    substituteInPlace "$FONTCONFIG_FILE" \
+      --replace-fail '<dir prefix="cwd">fonts</dir>' "<dir>$MB_IN_STORE/fonts</dir>"
 
     mkdir -p $out/bin
 
@@ -225,15 +247,16 @@ stdenv.mkDerivation rec {
 
   passthru = {
     inherit sources;
-    updateScript = callPackage ../tor-browser-bundle-bin/update.nix {
+    updateScript = callPackage ../tor-browser/update.nix {
       inherit pname version meta;
       baseUrl = "https://cdn.mullvad.net/browser/";
-      prefix = "mullvad-browser-";
+      name = "mullvad-browser";
     };
   };
 
   meta = with lib; {
     description = "Privacy-focused browser made in a collaboration between The Tor Project and Mullvad";
+    mainProgram = "mullvad-browser";
     homepage = "https://mullvad.net/en/browser";
     platforms = attrNames sources;
     maintainers = with maintainers; [ felschr panicgh ];

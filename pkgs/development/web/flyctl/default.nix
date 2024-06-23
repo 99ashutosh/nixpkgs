@@ -2,26 +2,25 @@
 
 buildGoModule rec {
   pname = "flyctl";
-  version = "0.1.92";
+  version = "0.2.72";
 
   src = fetchFromGitHub {
     owner = "superfly";
     repo = "flyctl";
     rev = "v${version}";
-    hash = "sha256-uW87hlSwHMJ6SIfranaH383EKwvewfNKbuGA4znVEeg=";
+    hash = "sha256-v2+xDeErVkgiGavPpBtKg7+BBhiKZdmbo2NIFL7iXvw=";
   };
 
-  vendorHash = "sha256-Y1merBgVui0Ot3gb2UbTiLmxlaI4egbsI6vQJgF4mCE=";
+  vendorHash = "sha256-iRZrjkWQxuUW/YM5TygFt+g8suM5iLGsWsCt4QQOX3M=";
 
   subPackages = [ "." ];
 
   ldflags = [
     "-s" "-w"
-    "-X github.com/superfly/flyctl/internal/buildinfo.commit=${src.rev}"
     "-X github.com/superfly/flyctl/internal/buildinfo.buildDate=1970-01-01T00:00:00Z"
-    "-X github.com/superfly/flyctl/internal/buildinfo.environment=production"
-    "-X github.com/superfly/flyctl/internal/buildinfo.version=${version}"
+    "-X github.com/superfly/flyctl/internal/buildinfo.buildVersion=${version}"
   ];
+  tags = ["production"];
 
   nativeBuildInputs = [ installShellFiles ];
 
@@ -35,8 +34,15 @@ buildGoModule rec {
     HOME=$(mktemp -d)
   '';
 
-  postCheck = ''
-    go test ./... -ldflags="-X 'github.com/superfly/flyctl/internal/buildinfo.buildDate=1970-01-01T00:00:00Z'"
+  # We override checkPhase to be able to test ./... while using subPackages
+  checkPhase = ''
+    runHook preCheck
+    # We do not set trimpath for tests, in case they reference test assets
+    export GOFLAGS=''${GOFLAGS//-trimpath/}
+
+    buildGoDir test ./...
+
+    runHook postCheck
   '';
 
   postInstall = ''
@@ -53,12 +59,12 @@ buildGoModule rec {
     version = "v${flyctl.version}";
   };
 
-  meta = with lib; {
+  meta = {
     description = "Command line tools for fly.io services";
     downloadPage = "https://github.com/superfly/flyctl";
     homepage = "https://fly.io/";
-    license = licenses.asl20;
-    maintainers = with maintainers; [ aaronjanse adtya jsierles techknowlogick viraptor ];
+    license = lib.licenses.asl20;
+    maintainers = with lib.maintainers; [ adtya jsierles techknowlogick RaghavSood teutat3s ];
     mainProgram = "flyctl";
   };
 }

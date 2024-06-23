@@ -3,7 +3,6 @@
 , fetchFromGitHub
 , cmake
 , ninja
-, extra-cmake-modules
 , qtbase
 , qtsvg
 , qttools
@@ -13,23 +12,24 @@
 , qtwayland
 , wayland
 , wrapQtAppsHook
+, kdePackages
 }:
 
 stdenv.mkDerivation rec {
   pname = "CopyQ";
-  version = "7.1.0";
+  version = "8.0.0";
 
   src = fetchFromGitHub {
     owner = "hluk";
     repo = "CopyQ";
     rev = "v${version}";
-    hash = "sha256-aAmpFKIIFZLPWUaOcf4V1d/wVQ7xRcnXFsqFjROsabg=";
+    hash = "sha256-Ewunl4k9f0aDjilhKAsVxwR3S6uSZ1xwtu6ccNsNOgk=";
   };
 
   nativeBuildInputs = [
     cmake
     ninja
-    extra-cmake-modules
+    kdePackages.extra-cmake-modules
     wrapQtAppsHook
   ];
 
@@ -42,6 +42,9 @@ stdenv.mkDerivation rec {
     libXtst
     qtwayland
     wayland
+    kdePackages.kconfig
+    kdePackages.kstatusnotifieritem
+    kdePackages.knotifications
   ];
 
   postPatch = ''

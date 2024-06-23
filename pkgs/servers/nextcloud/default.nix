@@ -1,7 +1,7 @@
-{ lib, stdenv, fetchurl, nixosTests
+{ lib, stdenvNoCC, fetchurl, nixosTests
 , nextcloud27Packages
-, nextcloud26Packages
-, nextcloud25Packages
+, nextcloud28Packages
+, nextcloud29Packages
 }:
 
 let
@@ -9,9 +9,7 @@ let
     version, hash
   , eol ? false, extraVulnerabilities ? []
   , packages
-  }: let
-    major = lib.versions.major version;
-  in stdenv.mkDerivation rec {
+  }: stdenvNoCC.mkDerivation rec {
     pname = "nextcloud";
     inherit version;
 
@@ -19,9 +17,6 @@ let
       url = "https://download.nextcloud.com/server/releases/${pname}-${version}.tar.bz2";
       inherit hash;
     };
-
-    # This patch is only necessary for NC version <26.
-    patches = lib.optional (lib.versionOlder major "26") (./patches + "/v${major}/0001-Setup-remove-custom-dbuser-creation-behavior.patch");
 
     passthru = {
       tests = nixosTests.nextcloud;
@@ -41,40 +36,28 @@ let
       homepage = "https://nextcloud.com";
       maintainers = with maintainers; [ schneefux bachp globin ma27 ];
       license = licenses.agpl3Plus;
-      platforms = with platforms; unix;
+      platforms = platforms.linux;
       knownVulnerabilities = extraVulnerabilities
         ++ (optional eol "Nextcloud version ${version} is EOL");
     };
   };
 in {
-  nextcloud24 = throw ''
-    Nextcloud v24 has been removed from `nixpkgs` as the support for is dropped
-    by upstream in 2023-04. Please upgrade to at least Nextcloud v25 by declaring
-
-        services.nextcloud.package = pkgs.nextcloud25;
-
-    in your NixOS config.
-
-    WARNING: if you were on Nextcloud 23 you have to upgrade to Nextcloud 24
-    first on 22.11 because Nextcloud doesn't support upgrades across multiple major versions!
-  '';
-
-  nextcloud25 = generic {
-    version = "25.0.11";
-    hash = "sha256-UkOCknG6t9uN8ry3dGZ0y7DS3KlQu7mS5K6UO+N+rtE=";
-    packages = nextcloud25Packages;
-  };
-
-  nextcloud26 = generic {
-    version = "26.0.6";
-    hash = "sha256-LKyP2S0kgjDc0Ea7u0RGmyIPWLAQ5j+V2APZhXVer2Y=";
-    packages = nextcloud26Packages;
-  };
-
   nextcloud27 = generic {
-    version = "27.1.0";
-    hash = "sha256-wxZwWeacUXt64H87sLgyQz0yRnWFkIH+lT6kG8ffEkI=";
+    version = "27.1.10";
+    hash = "sha256-lD4ScNdxp8gNqisy5ylM6MO3e56u9yrYs4SH1YyFB1Y=";
     packages = nextcloud27Packages;
+  };
+
+  nextcloud28 = generic {
+    version = "28.0.6";
+    hash = "sha256-3w0zhLRHy6HhKPIggPZ4BSH4aBab6r7o6g0VW/nGa48=";
+    packages = nextcloud28Packages;
+  };
+
+  nextcloud29 = generic {
+    version = "29.0.2";
+    hash = "sha256-LUnSl9w0AJICEFeCPo54oxK8APVt59hneseQWQkYqxc=";
+    packages = nextcloud29Packages;
   };
 
   # tip: get the sha with:

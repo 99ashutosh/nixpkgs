@@ -55,7 +55,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     homepage = "https://github.com/tstack/lnav";
-    description = "The Logfile Navigator";
+    description = "Logfile Navigator";
     longDescription = ''
       The log file navigator, lnav, is an enhanced log file viewer that takes
       advantage of any semantic information that can be gleaned from the files
@@ -69,6 +69,7 @@ stdenv.mkDerivation rec {
     license = licenses.bsd2;
     maintainers = with maintainers; [ dochang ];
     platforms = platforms.unix;
+    mainProgram = "lnav";
   };
 
 }

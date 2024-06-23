@@ -15,7 +15,7 @@
 , c-ares
 , json_c
 , libcap
-, libelf
+, elfutils
 , libunwind
 , libyang
 , net-snmp
@@ -85,13 +85,13 @@ lib.warnIf (!(stdenv.buildPlatform.canExecute stdenv.hostPlatform))
 
 stdenv.mkDerivation rec {
   pname = "frr";
-  version = "9.0.1";
+  version = "10.0.1";
 
   src = fetchFromGitHub {
     owner = "FRRouting";
     repo = pname;
     rev = "${pname}-${version}";
-    hash = "sha256-o0AVx7sDRowQz6NpKPQThC8NcGA3QN8xFzfE0k4AIVg=";
+    hash = "sha256-bY5SSF/fmKQc8ECPik0v/ZlUiFsbZhwG2C5pbmoMzwQ=";
   };
 
   nativeBuildInputs = [
@@ -102,12 +102,12 @@ stdenv.mkDerivation rec {
     pkg-config
     python3.pkgs.sphinx
     texinfo
+    protobufc
   ];
 
   buildInputs = [
     c-ares
     json_c
-    libelf
     libunwind
     libyang
     openssl
@@ -121,6 +121,8 @@ stdenv.mkDerivation rec {
     libcap
   ] ++ lib.optionals snmpSupport [
     net-snmp
+  ] ++ lib.optionals (lib.meta.availableOn stdenv.hostPlatform elfutils) [
+    elfutils
   ];
 
   # otherwise in cross-compilation: "configure: error: no working python version found"
@@ -227,7 +229,8 @@ stdenv.mkDerivation rec {
     '';
     license = with licenses; [ gpl2Plus lgpl21Plus ];
     maintainers = with maintainers; [ woffs thillux ];
-    platforms = platforms.unix;
+    # adapt to platforms stated in http://docs.frrouting.org/en/latest/overview.html#supported-platforms
+    platforms = (platforms.linux ++ platforms.freebsd ++ platforms.netbsd ++ platforms.openbsd);
   };
 
   passthru.tests = { inherit (nixosTests) frr; };

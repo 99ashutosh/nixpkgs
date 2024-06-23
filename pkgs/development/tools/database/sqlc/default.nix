@@ -1,7 +1,7 @@
 { lib, buildGoModule, fetchFromGitHub }:
 
 let
-  version = "1.21.0";
+  version = "1.26.0";
 in
 buildGoModule {
   pname = "sqlc";
@@ -11,16 +11,17 @@ buildGoModule {
     owner = "sqlc-dev";
     repo = "sqlc";
     rev = "v${version}";
-    hash = "sha256-BJKqVSyMjTedMuao8Bz92+B64B/x3M3MXKbSF+d0kDE=";
+    hash = "sha256-o23FQytw+zpkmTTxxxunHx3NvLF5q0ZSl1NV+D+XKww=";
   };
 
   proxyVendor = true;
-  vendorHash = "sha256-AnPC0x5V8ce9KH0B4Ujz2MrTIJA+P/BZG+fsRJ3LM78=";
+  vendorHash = "sha256-T4DUuZg1yVxSgw/SXgajpvYwzfYZYxzLE3F7U9bpUTw=";
 
   subPackages = [ "cmd/sqlc" ];
 
   meta = {
     description = "Generate type-safe code from SQL";
+    mainProgram = "sqlc";
     homepage = "https://sqlc.dev/";
     license = lib.licenses.mit;
     maintainers = [ lib.maintainers.adisbladis ];

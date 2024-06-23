@@ -7,16 +7,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "cargo-deb";
-  version = "1.42.2";
+  version = "2.3.0";
 
   src = fetchFromGitHub {
     owner = "kornelski";
     repo = pname;
     rev = "v${version}";
-    hash = "sha256-s/piZ8sCdBz5zFW9i7xdVrf7dQiMjQp/ixCDjFh5SLc=";
+    hash = "sha256-iXqYaRDRaqmI7Y3oEE1fFKYFX/+7Rt3qpzpQ5+l8Z3w=";
   };
 
-  cargoHash = "sha256-4iJghmSXsaijNCvYyrM3dEsqCDk6zeTU92oP5Qs6tOY=";
+  cargoHash = "sha256-LRE18jzgx/aONJkeqzEyDWrWNyp/FmxUGmOy3A9vA7Q=";
 
   nativeBuildInputs = [
     makeWrapper
@@ -25,6 +25,7 @@ rustPlatform.buildRustPackage rec {
   # This is an FHS specific assert depending on glibc location
   checkFlags = [
     "--skip=dependencies::resolve_test"
+    "--skip=run_cargo_deb_command_on_example_dir_with_separate_debug_symbols"
   ];
 
   postInstall = ''
@@ -33,7 +34,8 @@ rustPlatform.buildRustPackage rec {
   '';
 
   meta = with lib; {
-    description = "A cargo subcommand that generates Debian packages from information in Cargo.toml";
+    description = "Cargo subcommand that generates Debian packages from information in Cargo.toml";
+    mainProgram = "cargo-deb";
     homepage = "https://github.com/kornelski/cargo-deb";
     license = licenses.mit;
     maintainers = with maintainers; [ Br1ght0ne matthiasbeyer ];

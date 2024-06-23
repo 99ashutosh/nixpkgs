@@ -8,13 +8,13 @@ let
     x86_64-darwin = "x64";
   }."${stdenv.hostPlatform.system}" or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
   hash = {
-    x64-linux_hash = "sha256-Dpdsg952hw3ra24/REedfm/S3cOocfSrxjR5vGO/b5E=";
-    arm64-linux_hash = "sha256-xMRpbg37Q9VIRiioy3kUS00M0zxCT1G439pNWdgSe6A=";
-    x64-osx_hash = "sha256-rfG7pGUYpEHVpHu+tS0v+/CqF0v/TI0uy7faPoXU4oo=";
+    x64-linux_hash = "sha256-tc7ODqFifTI7+FhCNmUBAv0s324T4yH4AHIVy64N3/I=";
+    arm64-linux_hash = "sha256-hmS7m1w07n+1+Eia+hA8oK8fJr+lWyqVq1FGjyRYwaQ=";
+    x64-osx_hash = "sha256-+t3cEFlk5Agkb14hx1H3WQfpKniJkPImWoRn6swuoOE=";
   }."${arch}-${os}_hash";
 in stdenv.mkDerivation rec {
   pname = "lidarr";
-  version = "1.3.5.3530";
+  version = "2.2.5.4141";
 
   src = fetchurl {
     url = "https://github.com/lidarr/Lidarr/releases/download/v${version}/Lidarr.master.${version}.${os}-core-${arch}.tar.gz";
@@ -43,10 +43,11 @@ in stdenv.mkDerivation rec {
   };
 
   meta = with lib; {
-    description = "A Usenet/BitTorrent music downloader";
+    description = "Usenet/BitTorrent music downloader";
     homepage = "https://lidarr.audio/";
     license = licenses.gpl3;
     maintainers = [ maintainers.etu ];
+    mainProgram = "Lidarr";
     platforms = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" ];
   };
 }

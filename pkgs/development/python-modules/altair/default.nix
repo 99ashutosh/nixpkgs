@@ -1,44 +1,41 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, pythonOlder
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  pythonOlder,
 
-# Runtime dependencies
-, hatchling
-, toolz
-, numpy
-, jsonschema
-, typing-extensions
-, pandas
-, jinja2
-, packaging
+  # Runtime dependencies
+  hatchling,
+  toolz,
+  numpy,
+  jsonschema,
+  typing-extensions,
+  pandas,
+  jinja2,
+  packaging,
 
-# Build, dev and test dependencies
-, anywidget
-, ipython
-, pytestCheckHook
-, vega_datasets
-, sphinx
+  # Build, dev and test dependencies
+  anywidget,
+  ipython,
+  pytestCheckHook,
+  vega-datasets,
+  sphinx,
 }:
 
 buildPythonPackage rec {
   pname = "altair";
-  # current version, 5.0.1, is broken with jsonschema>=4.18
-  # we use unstable version instead of patch due to many changes
-  version = "unstable-2023-08-12";
+  version = "5.2.0";
   format = "pyproject";
   disabled = pythonOlder "3.8";
 
   src = fetchFromGitHub {
     owner = "altair-viz";
     repo = "altair";
-    rev = "56b3b66daae7160c8d82777d2646131afcc3dab4";
-    hash = "sha256-uVE3Bth1D1mIhaULB4IxEtOzhQd51Pscqyfdys65F6A=";
+    rev = "refs/tags/v${version}";
+    hash = "sha256-uTG+V0SQgAQtMjvrVvKVKgIBT9qO+26EPRxQCEXj/gc=";
   };
 
-  nativeBuildInputs = [
-    hatchling
-  ];
+  nativeBuildInputs = [ hatchling ];
 
   propagatedBuildInputs = [
     jinja2
@@ -53,7 +50,7 @@ buildPythonPackage rec {
     anywidget
     ipython
     sphinx
-    vega_datasets
+    vega-datasets
     pytestCheckHook
   ];
 
@@ -71,10 +68,14 @@ buildPythonPackage rec {
   ];
 
   meta = with lib; {
-    description = "A declarative statistical visualization library for Python.";
+    description = "Declarative statistical visualization library for Python";
     homepage = "https://altair-viz.github.io";
     downloadPage = "https://github.com/altair-viz/altair";
+    changelog = "https://altair-viz.github.io/releases/changes.html";
     license = licenses.bsd3;
-    maintainers = with maintainers; [ teh vinetos ];
+    maintainers = with maintainers; [
+      teh
+      vinetos
+    ];
   };
 }

@@ -20,7 +20,7 @@ stdenv.mkDerivation rec {
   buildInputs = [ libdrm ];
 
   meta = with lib; {
-    description = "A lightweight KMS plane library";
+    description = "Lightweight KMS plane library";
     longDescription = ''
       libliftoff eases the use of KMS planes from userspace without standing in
       your way. Users create "virtual planes" called layers, set KMS properties
@@ -30,6 +30,6 @@ stdenv.mkDerivation rec {
     changelog = "https://github.com/emersion/libliftoff/releases/tag/v${version}";
     license     = licenses.mit;
     platforms   = platforms.linux;
-    maintainers = with maintainers; [ pedrohlc primeos Scrumplex ];
+    maintainers = with maintainers; [ primeos Scrumplex ];
   };
 }

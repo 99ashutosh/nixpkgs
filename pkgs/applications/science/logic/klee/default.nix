@@ -6,7 +6,6 @@
 , clang
 , llvm
 , python3
-, zlib
 , z3
 , stp
 , cryptominisat
@@ -45,13 +44,13 @@ let
   };
 in stdenv.mkDerivation rec {
   pname = "klee";
-  version = "3.0";
+  version = "3.1";
 
   src = fetchFromGitHub {
     owner = "klee";
     repo = "klee";
     rev = "v${version}";
-    hash = "sha256-y5lWmtIcLAthQ0oHYQNd+ir75YaxHZR9Jgiz+ZUFQjY=";
+    hash = "sha256-5js1N8qVF0lCkahSU3ojT7+p/a9IaUpPWhIyFHEzqto=";
   };
 
   nativeBuildInputs = [ cmake ];
@@ -72,10 +71,11 @@ in stdenv.mkDerivation rec {
     (lit.override { python = kleePython; })
   ];
 
+  cmakeBuildType = if debug then "Debug" else if !debug && includeDebugInfo then "RelWithDebInfo" else "MinSizeRel";
+
   cmakeFlags = let
     onOff = val: if val then "ON" else "OFF";
   in [
-    "-DCMAKE_BUILD_TYPE=${if debug then "Debug" else if !debug && includeDebugInfo then "RelWithDebInfo" else "MinSizeRel"}"
     "-DKLEE_RUNTIME_BUILD_TYPE=${if debugRuntime then "Debug" else "Release"}"
     "-DLLVMCC=${clang}/bin/clang"
     "-DLLVMCXX=${clang}/bin/clang++"
@@ -97,6 +97,9 @@ in stdenv.mkDerivation rec {
     patchShebangs .
   '';
 
+  # https://github.com/klee/klee/issues/1690
+  hardeningDisable = [ "fortify" ];
+
   doCheck = true;
 
   passthru = {
@@ -105,7 +108,7 @@ in stdenv.mkDerivation rec {
   };
 
   meta = with lib; {
-    description = "A symbolic virtual machine built on top of LLVM";
+    description = "Symbolic virtual machine built on top of LLVM";
     longDescription = ''
       KLEE is a symbolic virtual machine built on top of the LLVM compiler
       infrastructure. Currently, there are two primary components:

@@ -4,28 +4,28 @@
 , meson
 , ninja
 , pkg-config
-, wayland
-, wrapGAppsHook
+, wrapGAppsHook3
 , wayfire
 , wf-shell
-, wf-config
 , wayland-scanner
 , wayland-protocols
 , gtk3
+, gtkmm3
 , libevdev
 , libxml2
+, libxkbcommon
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "wcm";
-  version = "0.7.5";
+  version = "0.8.0";
 
   src = fetchFromGitHub {
     owner = "WayfireWM";
     repo = "wcm";
     rev = "v${finalAttrs.version}";
     fetchSubmodules = true;
-    hash = "sha256-LJR9JGl49o4O6LARofz3jOeAqseGcmzVhMnhk/aobUU=";
+    hash = "sha256-UwHJ4Wi83ATnA1CQKNSt8Qga7ooLnAY7QARz2FXvUIo=";
   };
 
   nativeBuildInputs = [
@@ -33,18 +33,18 @@ stdenv.mkDerivation (finalAttrs: {
     ninja
     pkg-config
     wayland-scanner
-    wrapGAppsHook
+    wrapGAppsHook3
   ];
 
   buildInputs = [
     wayfire
-    wf-config
     wf-shell
-    wayland
     wayland-protocols
     gtk3
+    gtkmm3
     libevdev
     libxml2
+    libxkbcommon
   ];
 
   mesonFlags = [

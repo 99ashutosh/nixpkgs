@@ -1,28 +1,31 @@
-{ buildPythonPackage
-, fetchFromGitHub
-, lib
-, nix-update-script
-, pytestCheckHook
-, git
-, setuptools-scm
-, writeScript
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  git,
+  pytestCheckHook,
+  pythonOlder,
+  setuptools-scm,
+  writeScript,
 }:
+
 buildPythonPackage rec {
   pname = "setuptools-odoo";
-  version = "3.1.12";
+  version = "3.3";
+  format = "setuptools";
+
+  disabled = pythonOlder "3.7";
+
   src = fetchFromGitHub {
     owner = "acsone";
     repo = pname;
-    rev = version;
-    hash = "sha256-GIX21gOENE0r3yFIyzwjaoEcb0XvuCqiPU8F3GLxNt4=";
+    rev = "refs/tags/${version}";
+    hash = "sha256-38YlkDH/PuJ1yvQ43OYmdnRd1SGJULv6fC/+fitLDJ8=";
   };
 
-  propagatedBuildInputs = [
-    setuptools-scm
-  ];
+  propagatedBuildInputs = [ setuptools-scm ];
 
   # HACK https://github.com/NixOS/nixpkgs/pull/229460
-  SETUPTOOLS_SCM_PRETEND_VERSION = version;
   patchPhase = ''
     runHook prePatch
 
@@ -33,9 +36,7 @@ buildPythonPackage rec {
     runHook postPatch
   '';
 
-  pythonImportsCheck = [
-    "setuptools_odoo"
-  ];
+  pythonImportsCheck = [ "setuptools_odoo" ];
 
   setupHook = writeScript "setupHook.sh" ''
     setuptoolsOdooHook() {
@@ -55,7 +56,11 @@ buildPythonPackage rec {
     preBuildHooks+=(setuptoolsOdooHook)
   '';
 
-  nativeCheckInputs = [ pytestCheckHook git ];
+  nativeCheckInputs = [
+    pytestCheckHook
+    git
+  ];
+
   disabledTests = [
     "test_addon1_uncommitted_change"
     "test_addon1"
@@ -65,12 +70,11 @@ buildPythonPackage rec {
     "test_odoo_addon5_wheel"
   ];
 
-  passthru.updateScript = nix-update-script { };
-
-  meta = {
+  meta = with lib; {
     description = "Setuptools plugin for Odoo addons";
     homepage = "https://github.com/acsone/setuptools-odoo";
-    license = lib.licenses.lgpl3Only;
-    maintainers = with lib.maintainers; [ yajo ];
+    changelog = "https://github.com/acsone/setuptools-odoo/blob/${version}/CHANGES.rst";
+    license = licenses.lgpl3Only;
+    maintainers = with maintainers; [ yajo ];
   };
 }

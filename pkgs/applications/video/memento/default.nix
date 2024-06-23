@@ -22,13 +22,13 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "memento";
-  version = "1.2.1";
+  version = "1.2.2";
 
   src = fetchFromGitHub {
     owner = "ripose-jp";
     repo = "Memento";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-DUAr+twlIzyi+PnQYsTz9j9KcbzI0GhtC+f4nTekhs0=";
+    hash = "sha256-55VvT7pHN0/HqxM4vMDQDgUwkVmO/8aOEOye8jcFzgI=";
   };
 
   nativeBuildInputs = [
@@ -53,11 +53,12 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   meta = with lib; {
-    description = "An mpv-based video player for studying Japanese";
+    description = "Mpv-based video player for studying Japanese";
     homepage = "https://ripose-jp.github.io/Memento/";
     license = licenses.gpl2;
     maintainers = with maintainers; [ teto ];
     platforms = platforms.linux;
+    mainProgram = "memento";
   };
 })
 

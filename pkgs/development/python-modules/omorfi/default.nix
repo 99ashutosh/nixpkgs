@@ -1,19 +1,19 @@
-{ buildPythonPackage
-, pkgs
-, lib
-, stdenv
-, hfst
+{
+  buildPythonPackage,
+  pkgs,
+  lib,
+  stdenv,
+  hfst,
 }:
 
 buildPythonPackage rec {
   pname = "omorfi";
+  format = "setuptools";
   inherit (pkgs.omorfi) src version;
 
   sourceRoot = "${src.name}/src/python";
 
-  propagatedBuildInputs = [
-    hfst
-  ];
+  propagatedBuildInputs = [ hfst ];
 
   # Fixes some improper import paths
   patches = [ ./importfix.patch ];

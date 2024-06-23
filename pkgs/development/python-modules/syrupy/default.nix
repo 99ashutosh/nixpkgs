@@ -1,16 +1,17 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, python
-, poetry-core
-, pytest
-, colored
-, invoke
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  python,
+  poetry-core,
+  pytest,
+  colored,
+  invoke,
 }:
 
 buildPythonPackage rec {
   pname = "syrupy";
-  version = "4.2.1";
+  version = "4.6.1";
   format = "pyproject";
 
   disabled = lib.versionOlder python.version "3.8.1";
@@ -19,20 +20,14 @@ buildPythonPackage rec {
     owner = "tophat";
     repo = "syrupy";
     rev = "refs/tags/v${version}";
-    hash = "sha256-MXUuLw4+J/9JtXY1DYwBjj2sgAbO2cXQi1HnVRx3BhM=";
+    hash = "sha256-NBJJqQsZqqKHOdqGa/j/2KQvlenLCEJBqlfdjtFK00U=";
   };
 
-  nativeBuildInputs = [
-    poetry-core
-  ];
+  nativeBuildInputs = [ poetry-core ];
 
-  buildInputs = [
-    pytest
-  ];
+  buildInputs = [ pytest ];
 
-  propagatedBuildInputs = [
-    colored
-  ];
+  propagatedBuildInputs = [ colored ];
 
   nativeCheckInputs = [
     invoke

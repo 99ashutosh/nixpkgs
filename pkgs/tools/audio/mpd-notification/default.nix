@@ -12,13 +12,13 @@
 
 stdenv.mkDerivation rec {
   pname = "mpd-notification";
-  version = "0.8.7";
+  version = "0.9.0";
 
   src = fetchFromGitHub {
     owner = "eworm-de";
     repo = "mpd-notification";
     rev = version;
-    hash = "sha256-lBvx2eYxFJUAxR1LrjWHZUeAo+WnQKmPYJVAJTeXqHY=";
+    hash = "sha256-1DG8pemlF5bURbdJwGTZqp3WVfLOwGEpfqq9q1NtwaE=";
   };
 
   nativeBuildInputs = [
@@ -56,5 +56,6 @@ stdenv.mkDerivation rec {
     license = licenses.gpl3Plus;
     maintainers = with maintainers; [ CaitlinDavitt ];
     platforms = platforms.unix;
+    mainProgram = "mpd-notification";
   };
 }

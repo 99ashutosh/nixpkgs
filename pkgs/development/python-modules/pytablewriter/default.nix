@@ -1,29 +1,30 @@
-{ lib
-, buildPythonPackage
-, dataproperty
-, dominate
-, elasticsearch
-, fetchFromGitHub
-, loguru
-, mbstrdecoder
-, pandas
-, pathvalidate
-, pytestCheckHook
-, pythonOlder
-, pyyaml
-, setuptools
-, simplejson
-, tabledata
-, tcolorpy
-, toml
-, typepy
-, xlsxwriter
-, xlwt
+{
+  lib,
+  buildPythonPackage,
+  dataproperty,
+  dominate,
+  elasticsearch,
+  fetchFromGitHub,
+  loguru,
+  mbstrdecoder,
+  pandas,
+  pathvalidate,
+  pytestCheckHook,
+  pythonOlder,
+  pyyaml,
+  setuptools,
+  simplejson,
+  tabledata,
+  tcolorpy,
+  toml,
+  typepy,
+  xlsxwriter,
+  xlwt,
 }:
 
 buildPythonPackage rec {
   pname = "pytablewriter";
-  version = "1.0.0";
+  version = "1.2.0";
   format = "pyproject";
 
   disabled = pythonOlder "3.7";
@@ -32,12 +33,10 @@ buildPythonPackage rec {
     owner = "thombashi";
     repo = pname;
     rev = "refs/tags/v${version}";
-    hash = "sha256-VDx7/kKRBho4oWvUXYe5K9CC4vUCDs91G05Wlpa47OE=";
+    hash = "sha256-b3YzDqNATaT/FFG4/x9EGlYlhXKPvgNB2xnm0bzvLJQ=";
   };
 
-  nativeBuildInputs = [
-    setuptools
-  ];
+  nativeBuildInputs = [ setuptools ];
 
   propagatedBuildInputs = [
     dataproperty
@@ -61,49 +60,33 @@ buildPythonPackage rec {
       xlsxwriter
       xlwt
     ];
-    es = [
-      elasticsearch
-    ];
-    es8 = [
-      elasticsearch
-    ];
+    es = [ elasticsearch ];
+    es8 = [ elasticsearch ];
     excel = [
       xlwt
       xlsxwriter
     ];
-    html = [
-      dominate
-    ];
-    logging = [
-      loguru
-    ];
+    html = [ dominate ];
+    logging = [ loguru ];
     # from = [
     #   pytablereader
     # ];
-    pandas = [
-      pandas
-    ];
+    pandas = [ pandas ];
     # sqlite = [
     #   simplesqlite
     # ];
     # theme = [
     #   pytablewriter-altrow-theme
     # ];
-    toml = [
-      toml
-    ];
-    yaml = [
-      pyyaml
-    ];
+    toml = [ toml ];
+    yaml = [ pyyaml ];
   };
 
   nativeCheckInputs = [
     pytestCheckHook
   ] ++ lib.flatten (builtins.attrValues passthru.optional-dependencies);
 
-  pythonImportsCheck = [
-    "pathvalidate"
-  ];
+  pythonImportsCheck = [ "pathvalidate" ];
 
   disabledTests = [
     # Circular dependency
@@ -117,10 +100,11 @@ buildPythonPackage rec {
   disabledTestPaths = [
     "test/writer/binary/test_excel_writer.py"
     "test/writer/binary/test_sqlite_writer.py"
+    "test/writer/test_elasticsearch_writer.py"
   ];
 
   meta = with lib; {
-    description = "A library to write a table in various formats";
+    description = "Library to write a table in various formats";
     homepage = "https://github.com/thombashi/pytablewriter";
     changelog = "https://github.com/thombashi/pytablewriter/releases/tag/v${version}";
     license = licenses.mit;

@@ -10,12 +10,14 @@
 , mono
 , overrides ? {}
 , boogie
+, nuget
 }:
 
 let self = dotnetPackages // overrides; dotnetPackages = with self; {
   # ALIASES FOR MOVED PACKAGES
 
   Boogie = boogie;
+  Nuget = nuget;
 
   # BINARY PACKAGES
 
@@ -68,6 +70,7 @@ let self = dotnetPackages // overrides; dotnetPackages = with self; {
     version = "4.7.49.0";
     sha256 = "0rpfyvcggm881ynvgr17kbx5hvj7ivlms0bmskmb2zyjlpddx036";
     outputFiles = [ "tools/*" ];
+    meta.mainProgram = "stylecopsettingseditor";
   };
 
   StyleCopPlusMSBuild = fetchNuGet {
@@ -151,7 +154,7 @@ let self = dotnetPackages // overrides; dotnetPackages = with self; {
     buildInputs = [ pkgs.gtk-sharp-2_0 ];
 
     meta = {
-      description = "A generic framework for creating extensible applications";
+      description = "Generic framework for creating extensible applications";
       homepage = "https://www.mono-project.com/Mono.Addins";
       longDescription = ''
         A generic framework for creating extensible applications,
@@ -166,27 +169,6 @@ let self = dotnetPackages // overrides; dotnetPackages = with self; {
     version = "11.0.2";
     sha256 = "07na27n4mlw77f3hg5jpayzxll7f4gyna6x7k9cybmxpbs6l77k7";
     outputFiles = [ "*" ];
-  };
-
-  Nuget = buildDotnetPackage rec {
-    pname = "Nuget";
-    version = "6.3.1.1";
-
-    src = fetchFromGitHub {
-      owner = "mono";
-      repo = "linux-packaging-nuget";
-      rev = "upstream/${version}.bin";
-      sha256 = "sha256-D7F4B23HK5ElY68PYKVDsyi8OF0DLqqUqQzj5CpMfkc=";
-    };
-
-    # configurePhase breaks the binary and results in
-    # `File does not contain a valid CIL image.`
-    dontConfigure = true;
-    dontBuild = true;
-    dontPlacateNuget = true;
-
-    outputFiles = [ "*" ];
-    exeFiles = [ "nuget.exe" ];
   };
 
   Paket = fetchNuGet {

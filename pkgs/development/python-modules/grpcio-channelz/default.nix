@@ -1,27 +1,24 @@
-{ lib
-, buildPythonPackage
-, pythonRelaxDepsHook
-, fetchPypi
-, grpcio
-, protobuf
+{
+  lib,
+  buildPythonPackage,
+  pythonRelaxDepsHook,
+  fetchPypi,
+  grpcio,
+  protobuf,
 }:
 
 buildPythonPackage rec {
   pname = "grpcio-channelz";
-  version = "1.58.0";
+  version = "1.62.2";
   format = "setuptools";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-NWhuF3z+FGHJ+d99r+Uq4iTIppXkgwQYu0ASIyE8DB0=";
+    hash = "sha256-bkrCxD12skXF9m2Y9SPbCHhrGGEoplXubyCjCn5o5Pk=";
   };
 
-  nativeBuildInputs = [
-    pythonRelaxDepsHook
-  ];
-  pythonRelaxDeps = [
-    "grpcio"
-  ];
+  nativeBuildInputs = [ pythonRelaxDepsHook ];
+  pythonRelaxDeps = [ "grpcio" ];
 
   propagatedBuildInputs = [
     grpcio

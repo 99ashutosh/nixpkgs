@@ -3,11 +3,11 @@
 
 stdenv.mkDerivation rec {
   pname = "morgen";
-  version = "3.0.0";
+  version = "3.4.5";
 
   src = fetchurl {
-    url = "https://download.todesktop.com/210203cqcj00tw1/morgen-${version}.deb";
-    sha256 = "sha256-6d1KYUlXv+bHPITt2zs++AtyaAT8SSCG9T8ZsgOKDiw=";
+    url = "https://dl.todesktop.com/210203cqcj00tw1/versions/${version}/linux/deb";
+    hash = "sha256-5oBIw9PVbEGF1e47GeYNF6gJFm5z3M9KeJ1711cAg2s=";
   };
 
   nativeBuildInputs = [
@@ -41,17 +41,20 @@ stdenv.mkDerivation rec {
       --replace '/opt/Morgen' $out/bin
 
     makeWrapper ${electron}/bin/electron $out/bin/morgen \
-      --add-flags $out/opt/Morgen/resources/app.asar
+      --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations,WebRTCPipeWireCapturer}} $out/opt/Morgen/resources/app.asar"
 
     runHook postInstall
   '';
 
+  passthru.updateScript = ./update.sh;
+
   meta = with lib; {
     description = "All-in-one Calendars, Tasks and Scheduler";
     homepage = "https://morgen.so/download";
+    mainProgram = "morgen";
     sourceProvenance = with sourceTypes; [ binaryNativeCode ];
     license = licenses.unfree;
-    maintainers = with maintainers; [ wolfangaukang ];
+    maintainers = with maintainers; [ justanotherariel ];
     platforms = [ "x86_64-linux" ];
   };
 }

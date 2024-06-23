@@ -5,6 +5,7 @@
 , desktop-file-utils
 , glib
 , gtk4
+, libGL
 , libepoxy
 , libadwaita
 , meson
@@ -14,6 +15,8 @@
 , pkg-config
 , python3
 , wrapGAppsHook4
+, yt-dlp
+, youtubeSupport ? true
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -40,6 +43,7 @@ stdenv.mkDerivation (finalAttrs: {
   buildInputs = [
     glib
     gtk4
+    libGL
     libadwaita
     libepoxy
     mpv
@@ -47,6 +51,12 @@ stdenv.mkDerivation (finalAttrs: {
 
   postPatch = ''
     patchShebangs meson-post-install.py src/generate-authors.py
+  '';
+
+  preFixup = lib.optionalString youtubeSupport ''
+    gappsWrapperArgs+=(
+      --prefix PATH : "${lib.makeBinPath [ yt-dlp ]}"
+    )
   '';
 
   strictDeps = true;

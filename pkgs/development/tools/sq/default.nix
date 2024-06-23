@@ -1,17 +1,17 @@
-{ lib, buildGo121Module, fetchFromGitHub, installShellFiles, testers, sq }:
+{ lib, buildGoModule, fetchFromGitHub, installShellFiles, testers, sq }:
 
-buildGo121Module rec {
+buildGoModule rec {
   pname = "sq";
-  version = "0.42.0";
+  version = "0.48.3";
 
   src = fetchFromGitHub {
     owner = "neilotoole";
     repo = pname;
     rev = "v${version}";
-    hash = "sha256-IL3041R35WL+sYCpTjfPXUpd7GTcQoaILYBufwH1WoE=";
+    hash = "sha256-22N8DEaLmGBA3Rx6VzxplUK9UAydo/gx4EsQzzaRHNE=";
   };
 
-  vendorHash = "sha256-ez5qhGgK0q3oDT0L0Fs+JKJjMbNoJukzCoir2a9ro48=";
+  vendorHash = "sha256-p0r7TuWFpV81Rnxqdj+UJec60EmvVQISURe43SpOpw0=";
 
   proxyVendor = true;
 
@@ -42,6 +42,7 @@ buildGo121Module rec {
 
   meta = with lib; {
     description = "Swiss army knife for data";
+    mainProgram = "sq";
     homepage = "https://sq.io/";
     license = licenses.mit;
     platforms = platforms.all;

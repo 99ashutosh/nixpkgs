@@ -4,7 +4,7 @@ buildGoModule rec {
   pname = "dnscrypt-proxy";
   version = "2.1.5";
 
-  vendorSha256 = null;
+  vendorHash = null;
 
   doCheck = false;
 
@@ -16,7 +16,7 @@ buildGoModule rec {
   };
 
   meta = with lib; {
-    description = "A tool that provides secure DNS resolution";
+    description = "Tool that provides secure DNS resolution";
 
     license = licenses.isc;
     homepage = "https://dnscrypt.info/";

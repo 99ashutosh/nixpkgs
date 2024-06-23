@@ -1,35 +1,40 @@
-{ lib
-, asgiref
-, buildPythonPackage
-, certifi
-, charset-normalizer
-, deepl
-, django
-, fetchFromGitHub
-, gql
-, idna
-, markdown-it-py
-, mdurl
-, pygments
-, pytest
-, pytestCheckHook
-, pythonOlder
-, pyyaml
-, reptor
-, requests
-, rich
-, setuptools
-, sqlparse
-, termcolor
-, toml
-, urllib3
-, xmltodict
+{
+  lib,
+  asgiref,
+  buildPythonPackage,
+  certifi,
+  charset-normalizer,
+  cvss,
+  deepl,
+  django,
+  fetchFromGitHub,
+  gql,
+  idna,
+  markdown-it-py,
+  mdurl,
+  pygments,
+  pytest,
+  pytestCheckHook,
+  pythonOlder,
+  pythonRelaxDepsHook,
+  pyyaml,
+  reptor,
+  requests,
+  rich,
+  setuptools,
+  sqlparse,
+  termcolor,
+  tomli,
+  tomli-w,
+  tomlkit,
+  urllib3,
+  xmltodict,
 }:
 
 buildPythonPackage rec {
   pname = "reptor";
-  version = "0.4";
-  format = "pyproject";
+  version = "0.20";
+  pyproject = true;
 
   disabled = pythonOlder "3.8";
 
@@ -37,17 +42,20 @@ buildPythonPackage rec {
     owner = "Syslifters";
     repo = "reptor";
     rev = "refs/tags/${version}";
-    hash = "sha256-3FRMdiSKWlEUmggtSDea9w386uwAn/VUzXiD1xRNuxQ=";
+    hash = "sha256-6DuIJScNiSaEez4vMRuA5Thr8zmvH0j3oiZmQhONSdY=";
   };
 
-  nativeBuildInputs = [
-    setuptools
-  ];
+  pythonRelaxDeps = true;
 
-  propagatedBuildInputs = [
+  build-system = [ setuptools ];
+
+  nativeBuildInputs = [ pythonRelaxDepsHook ];
+
+  dependencies = [
     asgiref
     certifi
     charset-normalizer
+    cvss
     django
     idna
     markdown-it-py
@@ -58,18 +66,16 @@ buildPythonPackage rec {
     rich
     sqlparse
     termcolor
-    toml
+    tomli
+    tomlkit
+    tomli-w
     urllib3
     xmltodict
   ];
 
   passthru.optional-dependencies = {
-    ghostwriter = [
-      gql
-    ];
-    translate = [
-      deepl
-    ];
+    ghostwriter = [ gql ] ++ gql.optional-dependencies.aiohttp;
+    translate = [ deepl ];
   };
 
   nativeCheckInputs = [
@@ -78,19 +84,25 @@ buildPythonPackage rec {
 
   preCheck = ''
     export HOME=$(mktemp -d)
+    export PATH="$PATH:$out/bin";
   '';
 
-  pythonImportsCheck = [
-    "reptor"
-  ];
+  pythonImportsCheck = [ "reptor" ];
 
   disabledTestPaths = [
     # Tests want to use pip install dependencies
     "reptor/plugins/importers/GhostWriter/tests/test_ghostwriter.py"
   ];
 
+  disabledTests = [
+    # Tests need network access
+    "TestDummy"
+    "TestIntegration"
+  ];
+
   meta = with lib; {
     description = "Module to do automated pentest reporting with SysReptor";
+    mainProgram = "reptor";
     homepage = "https://github.com/Syslifters/reptor";
     changelog = "https://github.com/Syslifters/reptor/releases/tag/${version}";
     license = licenses.mit;

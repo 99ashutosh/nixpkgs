@@ -37,9 +37,9 @@ stdenv.mkDerivation rec {
   ];
 
   meta = with lib; {
-    homepage = "http://mama.indstate.edu/users/ice/tree/";
+    homepage = "https://oldmanprogrammer.net/source.php?dir=projects/tree";
     description = "Command to produce a depth indented directory listing";
-    license = licenses.gpl2;
+    license = licenses.gpl2Plus;
     longDescription = ''
       Tree is a recursive directory listing command that produces a
       depth indented listing of files, which is colorized ala dircolors if
@@ -47,5 +47,6 @@ stdenv.mkDerivation rec {
     '';
     platforms = platforms.all;
     maintainers = with maintainers; [ nickcao ];
+    mainProgram = "tree";
   };
 }

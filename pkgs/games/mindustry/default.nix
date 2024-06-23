@@ -4,7 +4,7 @@
 , copyDesktopItems
 , fetchFromGitHub
 , gradle
-, jdk
+, jdk17
 , perl
 
 # for arc
@@ -39,6 +39,9 @@ let
   pname = "mindustry";
   version = "146";
   buildVersion = makeBuildVersion version;
+
+  jdk = jdk17;
+  gradleWithJdk = gradle.override { java = jdk; };
 
   selectedGlew = if enableWayland then glew-egl else glew;
 
@@ -95,6 +98,7 @@ let
     desktopName = "Mindustry";
     exec = "mindustry";
     icon = "mindustry";
+    categories = [ "Game" ];
   };
 
   cleanupMindustrySrc = ''
@@ -114,7 +118,7 @@ let
     inherit version unpackPhase patches;
     postPatch = cleanupMindustrySrc;
 
-    nativeBuildInputs = [ gradle perl ];
+    nativeBuildInputs = [ gradleWithJdk perl ];
     # Here we download dependencies for both the server and the client so
     # we only have to specify one hash for 'deps'. Deps can be garbage
     # collected after the build, so this is not really an issue.
@@ -149,7 +153,7 @@ stdenv.mkDerivation rec {
   ];
   nativeBuildInputs = [
     pkg-config
-    gradle
+    gradleWithJdk
     makeWrapper
     jdk
   ] ++ lib.optionals enableClient [
@@ -236,7 +240,7 @@ stdenv.mkDerivation rec {
   meta = with lib; {
     homepage = "https://mindustrygame.github.io/";
     downloadPage = "https://github.com/Anuken/Mindustry/releases";
-    description = "A sandbox tower defense game";
+    description = "Sandbox tower defense game";
     sourceProvenance = with sourceTypes; [
       fromSource
       binaryBytecode  # deps

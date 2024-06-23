@@ -14,7 +14,7 @@ stdenv.mkDerivation rec {
   buildInputs = [ curl postgresql ];
 
   installPhase = ''
-    install -D -t $out/lib *.so
+    install -D -t $out/lib *${postgresql.dlSuffix}
     install -D -t $out/share/postgresql/extension *.sql
     install -D -t $out/share/postgresql/extension *.control
   '';
@@ -23,7 +23,7 @@ stdenv.mkDerivation rec {
     description = "HTTP client for PostgreSQL, retrieve a web page from inside the database";
     homepage = "https://github.com/pramsey/pgsql-http";
     changelog = "https://github.com/pramsey/pgsql-http/releases/tag/v${version}";
-    maintainers = [ maintainers.marsam ];
+    maintainers = [ ];
     platforms = postgresql.meta.platforms;
     license = licenses.mit;
   };

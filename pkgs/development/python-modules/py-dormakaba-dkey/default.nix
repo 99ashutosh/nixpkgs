@@ -1,18 +1,19 @@
-{ lib
-, bleak
-, bleak-retry-connector
-, buildPythonPackage
-, cryptography
-, fetchFromGitHub
-, fetchpatch
-, pythonOlder
-, setuptools
-, wheel
+{
+  lib,
+  bleak,
+  bleak-retry-connector,
+  buildPythonPackage,
+  cryptography,
+  fetchFromGitHub,
+  fetchpatch,
+  pythonOlder,
+  setuptools,
+  wheel,
 }:
 
 buildPythonPackage rec {
   pname = "py-dormakaba-dkey";
-  version = "1.0.4";
+  version = "1.0.5";
   format = "pyproject";
 
   disabled = pythonOlder "3.10";
@@ -21,7 +22,7 @@ buildPythonPackage rec {
     owner = "emontnemery";
     repo = pname;
     rev = "refs/tags/${version}";
-    hash = "sha256-1jIsKQa27XNVievU02jjanRWFtJDYsHolgPBab6qpM0=";
+    hash = "sha256-kS99du9EZwki6J2q+nI44rx/AWIPtq7wXR/61ZcyUSM=";
   };
 
   patches = [
@@ -47,9 +48,7 @@ buildPythonPackage rec {
   # Module has no tests
   doCheck = false;
 
-  pythonImportsCheck = [
-    "py_dormakaba_dkey"
-  ];
+  pythonImportsCheck = [ "py_dormakaba_dkey" ];
 
   meta = with lib; {
     description = "Library to interact with a Dormakaba dkey lock";

@@ -1,40 +1,44 @@
-{ lib
-, beautifulsoup4
-, buildPythonPackage
-, click
-, dataclasses-json
-, fetchFromGitHub
-, htmlmin
-, jinja2
-, markdown2
-, poetry-core
-, pygments
-, pytestCheckHook
-, pythonOlder
-, pytz
-, pyyaml
-, requests
+{
+  lib,
+  beautifulsoup4,
+  buildPythonPackage,
+  click,
+  dataclasses-json,
+  fetchFromGitHub,
+  htmlmin,
+  jinja2,
+  markdown2,
+  poetry-core,
+  pygments,
+  pytestCheckHook,
+  pythonOlder,
+  pythonRelaxDepsHook,
+  pytz,
+  pyyaml,
+  requests,
 }:
 
 buildPythonPackage rec {
   pname = "json-schema-for-humans";
-  version = "0.45.1";
-  format = "pyproject";
+  version = "1.0.2";
+  pyproject = true;
 
   disabled = pythonOlder "3.7";
 
   src = fetchFromGitHub {
     owner = "coveooss";
-    repo = pname;
+    repo = "json-schema-for-humans";
     rev = "refs/tags/v${version}";
-    hash = "sha256-9dX9+YwJdJpgU3cZkxk7+CgdRFgcVhrvU0amO8zHZhs=";
+    hash = "sha256-SSMUHC4IsMIIhmRrG0ZWNO2MNKKvoBSybmEEibAY5q0=";
   };
 
-  nativeBuildInputs = [
-    poetry-core
-  ];
+  pythonRelaxDeps = [ "dataclasses-json" ];
 
-  propagatedBuildInputs = [
+  build-system = [ poetry-core ];
+
+  nativeBuildInputs = [ pythonRelaxDepsHook ];
+
+  dependencies = [
     click
     dataclasses-json
     htmlmin
@@ -58,9 +62,7 @@ buildPythonPackage rec {
     "TestMdGenerate"
   ];
 
-  pythonImportsCheck = [
-    "json_schema_for_humans"
-  ];
+  pythonImportsCheck = [ "json_schema_for_humans" ];
 
   meta = with lib; {
     description = "Quickly generate HTML documentation from a JSON schema";
@@ -68,5 +70,6 @@ buildPythonPackage rec {
     changelog = "https://github.com/coveooss/json-schema-for-humans/releases/tag/v${version}";
     license = licenses.asl20;
     maintainers = with maintainers; [ astro ];
+    mainProgram = "generate-schema-doc";
   };
 }

@@ -1,45 +1,38 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, pytestCheckHook
-, pythonOlder
-, requests
-, requests-mock
-, setuptools
-, wheel
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  pytestCheckHook,
+  pythonOlder,
+  requests,
+  requests-mock,
+  setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "pyfibaro";
-  version = "0.7.3";
-  format = "pyproject";
+  version = "0.7.8";
+  pyproject = true;
 
   disabled = pythonOlder "3.9";
 
   src = fetchFromGitHub {
     owner = "rappenze";
-    repo = pname;
+    repo = "pyfibaro";
     rev = "refs/tags/${version}";
-    hash = "sha256-pCj69lLcoNTyZRe6SVkFpPK2Ex8927WzAJ5OCot9xP4=";
+    hash = "sha256-gid+qbl4RgT47zC5i1Usw2Zco+jb2LJeeMkKvni/aDM=";
   };
 
-  nativeBuildInputs = [
-    setuptools
-    wheel
-  ];
+  build-system = [ setuptools ];
 
-  propagatedBuildInputs = [
-    requests
-  ];
+  dependencies = [ requests ];
 
   nativeCheckInputs = [
     pytestCheckHook
     requests-mock
   ];
 
-  pythonImportsCheck = [
-    "pyfibaro"
-  ];
+  pythonImportsCheck = [ "pyfibaro" ];
 
   meta = with lib; {
     description = "Library to access FIBARO Home center";

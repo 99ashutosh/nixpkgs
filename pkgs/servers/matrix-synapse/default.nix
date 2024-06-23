@@ -1,8 +1,10 @@
 { lib
 , stdenv
 , fetchFromGitHub
+, fetchPypi
 , python3
 , openssl
+, libiconv
 , cargo
 , rustPlatform
 , rustc
@@ -11,39 +13,57 @@
 }:
 
 let
-  plugins = python3.pkgs.callPackage ./plugins { };
+  python = python3.override {
+    packageOverrides = self: super: {
+      netaddr = super.netaddr.overridePythonAttrs (oldAttrs: rec {
+        version = "1.0.0";
+
+        src = fetchPypi {
+          pname = "netaddr";
+          inherit version;
+          hash = "sha256-6wRrVTVOelv4AcBJAq6SO9aZGQJC2JsJnolvmycktNM=";
+        };
+      });
+    };
+  };
+
+  plugins = python.pkgs.callPackage ./plugins { };
   tools = callPackage ./tools { };
 in
-python3.pkgs.buildPythonApplication rec {
+python.pkgs.buildPythonApplication rec {
   pname = "matrix-synapse";
-  version = "1.92.1";
+  version = "1.109.0";
   format = "pyproject";
 
   src = fetchFromGitHub {
-    owner = "matrix-org";
+    owner = "element-hq";
     repo = "synapse";
     rev = "v${version}";
-    hash = "sha256-rCxoYtdvh+Gu0O2T3uu0k2FFFFc7m09LuKJvkSky3M4=";
+    hash = "sha256-AUaHgMKte1EIfI0EQm8YeQVtlXGTm+MZwq22WzYHGsE=";
   };
 
   cargoDeps = rustPlatform.fetchCargoTarball {
     inherit src;
     name = "${pname}-${version}";
-    hash = "sha256-yZeCENWdPv80Na1++/IQFOrhah/VHWwJDNV2dI/yTHg=";
+    hash = "sha256-KwRNn2Ypt87QRUTCsj00zsu6uQtP5MSuM6B2DemoFGs=";
   };
 
   postPatch = ''
     # Remove setuptools_rust from runtime dependencies
-    # https://github.com/matrix-org/synapse/blob/v1.69.0/pyproject.toml#L177-L185
+    # https://github.com/element-hq/synapse/blob/v1.69.0/pyproject.toml#L177-L185
     sed -i '/^setuptools_rust =/d' pyproject.toml
 
     # Remove version pin on build dependencies. Upstream does this on purpose to
     # be extra defensive, but we don't want to deal with updating this
     sed -i 's/"poetry-core>=\([0-9.]*\),<=[0-9.]*"/"poetry-core>=\1"/' pyproject.toml
     sed -i 's/"setuptools_rust>=\([0-9.]*\),<=[0-9.]*"/"setuptools_rust>=\1"/' pyproject.toml
+
+    # Don't force pillow to be 10.0.1 because we already have patched it, and
+    # we don't use the pillow wheels.
+    sed -i 's/Pillow = ".*"/Pillow = ">=5.4.0"/' pyproject.toml
   '';
 
-  nativeBuildInputs = with python3.pkgs; [
+  nativeBuildInputs = with python.pkgs; [
     poetry-core
     rustPlatform.cargoSetupHook
     setuptools-rust
@@ -53,9 +73,11 @@ python3.pkgs.buildPythonApplication rec {
 
   buildInputs = [
     openssl
+  ] ++ lib.optionals stdenv.isDarwin [
+    libiconv
   ];
 
-  propagatedBuildInputs = with python3.pkgs; [
+  propagatedBuildInputs = with python.pkgs; [
     attrs
     bcrypt
     bleach
@@ -88,7 +110,7 @@ python3.pkgs.buildPythonApplication rec {
   ]
   ++ twisted.optional-dependencies.tls;
 
-  passthru.optional-dependencies = with python3.pkgs; {
+  passthru.optional-dependencies = with python.pkgs; {
     postgres = if isPyPy then [
       psycopg2cffi
     ] else [
@@ -109,10 +131,6 @@ python3.pkgs.buildPythonApplication rec {
     sentry = [
       sentry-sdk
     ];
-    opentracing = [
-      jaeger-client
-      opentracing
-    ];
     jwt = [
       authlib
     ];
@@ -130,7 +148,7 @@ python3.pkgs.buildPythonApplication rec {
 
   nativeCheckInputs = [
     openssl
-  ] ++ (with python3.pkgs; [
+  ] ++ (with python.pkgs; [
     mock
     parameterized
   ])
@@ -146,27 +164,26 @@ python3.pkgs.buildPythonApplication rec {
 
     # high parallelisem makes test suite unstable
     # upstream uses 2 cores but 4 seems to be also stable
-    # https://github.com/matrix-org/synapse/blob/develop/.github/workflows/latest_deps.yml#L103
+    # https://github.com/element-hq/synapse/blob/develop/.github/workflows/latest_deps.yml#L103
     if (( $NIX_BUILD_CORES > 4)); then
       NIX_BUILD_CORES=4
     fi
 
-    PYTHONPATH=".:$PYTHONPATH" ${python3.interpreter} -m twisted.trial -j $NIX_BUILD_CORES tests
+    PYTHONPATH=".:$PYTHONPATH" ${python.interpreter} -m twisted.trial -j $NIX_BUILD_CORES tests
 
     runHook postCheck
   '';
 
   passthru = {
     tests = { inherit (nixosTests) matrix-synapse matrix-synapse-workers; };
-    inherit plugins tools;
-    python = python3;
+    inherit plugins tools python;
   };
 
   meta = with lib; {
     homepage = "https://matrix.org";
-    changelog = "https://github.com/matrix-org/synapse/releases/tag/v${version}";
+    changelog = "https://github.com/element-hq/synapse/releases/tag/v${version}";
     description = "Matrix reference homeserver";
-    license = licenses.asl20;
+    license = licenses.agpl3Plus;
     maintainers = teams.matrix.members;
   };
 }

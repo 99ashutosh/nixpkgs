@@ -27,22 +27,14 @@
 
 stdenv.mkDerivation rec {
   pname = "libwebp";
-  version = "1.3.1";
+  version = "1.4.0";
 
   src = fetchFromGitHub {
     owner  = "webmproject";
     repo   = pname;
     rev    = "v${version}";
-    hash   = "sha256-Q94avvKjPdwdGt5ADo30cf2V4T7MCTubDHJxTtbG4xQ=";
+    hash   = "sha256-OR/VzKNn3mnwjf+G+RkEGAaaKrhVlAu1e2oTRwdsPj8=";
   };
-
-  patches = [
-    # Commit 902bc919 from upstream, mangled slightly to apply onto 1.3.1.
-    # There is currently (2023-09-12) no confirmation that this is the fix for
-    # CVE-2023-4863, but it is linked to the right crbug, and matches the
-    # description of that (critical sev, exploited in the wild) CVE.
-    ./CVE-2023-4863.patch
-  ];
 
   configureFlags = [
     (lib.enableFeature threadingSupport "threading")
@@ -70,7 +62,7 @@ stdenv.mkDerivation rec {
   enableParallelBuilding = true;
 
   passthru.tests = {
-    inherit freeimage gd graphicsmagick imagemagick imlib2 libjxl opencv vips;
+    inherit gd graphicsmagick imagemagick imlib2 libjxl opencv vips;
     inherit (python3.pkgs) pillow imread;
     haskell-webp = haskellPackages.webp;
   };

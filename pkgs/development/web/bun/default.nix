@@ -12,7 +12,7 @@
 }:
 
 stdenvNoCC.mkDerivation rec {
-  version = "1.0.2";
+  version = "1.1.15";
   pname = "bun";
 
   src = passthru.sources.${stdenvNoCC.hostPlatform.system} or (throw "Unsupported system: ${stdenvNoCC.hostPlatform.system}");
@@ -51,19 +51,19 @@ stdenvNoCC.mkDerivation rec {
     sources = {
       "aarch64-darwin" = fetchurl {
         url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-darwin-aarch64.zip";
-        hash = "sha256-QvoEakfR5wmP10d6MDpfS8THke975bVyZc5pLVliUbQ=";
+        hash = "sha256-T6V3B54rpdNmF60lX137Pau80+E/21aSl6LCa+6GHq4=";
       };
       "aarch64-linux" = fetchurl {
         url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-aarch64.zip";
-        hash = "sha256-izVtW28QE7Tty6DfQDKmw1oqD5GOolTzCeIUmtgI1Uw=";
+        hash = "sha256-ekWcoZxGsq1AtBLflzzhVQ2lVPwQt61Y86MVHtFJsUQ=";
       };
       "x86_64-darwin" = fetchurl {
         url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-darwin-x64.zip";
-        hash = "sha256-e/VXNCq2CwNsM7ruk8IGSwU/swkVhcvvQRv/yiIQtCU=";
+        hash = "sha256-o1NWjuWTwIQamLG10UU7LawZ9jB8RDuLWJKbCCEIdeU=";
       };
       "x86_64-linux" = fetchurl {
         url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-        hash = "sha256-kHv8PU48Le4lG3pf304hXggAtx/I5uBeu4aHmLsbdgw=";
+        hash = "sha256-PLGR7TEdy3sQ3S9rKWe8z8gjrmb8STyYPzbRPaJYSPI=";
       };
     };
     updateScript = writeShellScript "update-bun" ''
@@ -75,8 +75,7 @@ stdenvNoCC.mkDerivation rec {
           exit 0
       fi
       for platform in ${lib.escapeShellArgs meta.platforms}; do
-        update-source-version "bun" "0" "${lib.fakeSha256}" --source-key="sources.$platform"
-        update-source-version "bun" "$NEW_VERSION" --source-key="sources.$platform"
+        update-source-version "bun" "$NEW_VERSION" --ignore-same-version --source-key="sources.$platform"
       done
     '';
   };
@@ -92,7 +91,11 @@ stdenvNoCC.mkDerivation rec {
       mit # bun core
       lgpl21Only # javascriptcore and webkit
     ];
-    maintainers = with maintainers; [ DAlperin jk thilobillerbeck cdmistman coffeeispower ];
+    mainProgram = "bun";
+    maintainers = with maintainers; [ DAlperin jk thilobillerbeck cdmistman coffeeispower diogomdp ];
     platforms = builtins.attrNames passthru.sources;
+    # Broken for Musl at 2024-01-13, tracking issue:
+    # https://github.com/NixOS/nixpkgs/issues/280716
+    broken = stdenvNoCC.hostPlatform.isMusl;
   };
 }

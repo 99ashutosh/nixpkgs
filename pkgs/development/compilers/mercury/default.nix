@@ -3,11 +3,11 @@
 
 stdenv.mkDerivation rec {
   pname = "mercury";
-  version = "22.01.7";
+  version = "22.01.8";
 
   src = fetchurl {
     url    = "https://dl.mercurylang.org/release/mercury-srcdist-${version}.tar.gz";
-    sha256 = "sha256-PctyVKlV2cnHoBSAXjMTSPvWY7op9D6kIMypYDRgvGw=";
+    sha256 = "sha256-oJfozI7KAVLtlSfByvc+XJyD9q2h0xOiW4D+eQcvutg=";
   };
 
   nativeBuildInputs = [ makeWrapper ];
@@ -43,7 +43,7 @@ stdenv.mkDerivation rec {
   '';
 
   meta = {
-    description = "A pure logic programming language";
+    description = "Pure logic programming language";
     longDescription = ''
       Mercury is a logic/functional programming language which combines the
       clarity and expressiveness of declarative programming with advanced

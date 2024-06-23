@@ -21,18 +21,19 @@
 , libsecret
 , libwebp
 , libspelling
+, icu
 , gst_all_1
 , nix-update-script
 }:
 
 stdenv.mkDerivation rec {
   pname = "tuba";
-  version = "0.4.1";
+  version = "0.7.2";
   src = fetchFromGitHub {
     owner = "GeopJr";
     repo = "Tuba";
     rev = "v${version}";
-    hash = "sha256-1XbgsdIcnlXJtNEzDgEfHVJHF9naz3HplCPc2cKFUWw=";
+    hash = "sha256-PRbepitFSvdw/7y5VlnSdsQwnlTQg4ktM4t1/x6SmAY=";
   };
 
   nativeBuildInputs = [
@@ -59,6 +60,7 @@ stdenv.mkDerivation rec {
     libsecret
     libwebp
     libspelling
+    icu
   ] ++ (with gst_all_1; [
     gstreamer
     gst-libav
@@ -66,6 +68,8 @@ stdenv.mkDerivation rec {
     (gst-plugins-good.override { gtkSupport = true; })
     gst-plugins-bad
   ]);
+
+  env.NIX_CFLAGS_COMPILE = lib.optionalString stdenv.cc.isClang "-Wno-error=int-conversion";
 
   passthru = {
     updateScript = nix-update-script { };

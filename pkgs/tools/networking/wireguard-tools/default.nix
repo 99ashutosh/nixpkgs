@@ -8,6 +8,7 @@
 , openresolv
 , procps
 , bash
+, wireguard-go
 }:
 
 stdenv.mkDerivation rec {
@@ -46,6 +47,11 @@ stdenv.mkDerivation rec {
         --prefix PATH : ${lib.makeBinPath [ procps iproute2 ]} \
         --suffix PATH : ${lib.makeBinPath [ iptables openresolv ]}
     done
+  '' + lib.optionalString stdenv.isDarwin ''
+    for f in $out/bin/*; do
+      wrapProgram $f \
+        --prefix PATH : ${lib.makeBinPath [ wireguard-go ]}
+    done
   '';
 
   passthru = {
@@ -64,7 +70,7 @@ stdenv.mkDerivation rec {
     '';
     downloadPage = "https://git.zx2c4.com/wireguard-tools/refs/";
     homepage = "https://www.wireguard.com/";
-    license = licenses.gpl2;
+    license = licenses.gpl2Only;
     maintainers = with maintainers; [ ericsagnes zx2c4 globin ma27 d-xo ];
     mainProgram = "wg";
     platforms = platforms.unix;

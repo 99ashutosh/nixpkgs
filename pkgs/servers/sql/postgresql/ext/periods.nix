@@ -14,7 +14,7 @@ stdenv.mkDerivation rec {
   buildInputs = [ postgresql ];
 
   installPhase = ''
-    install -D -t $out/lib *.so
+    install -D -t $out/lib *${postgresql.dlSuffix}
     install -D -t $out/share/postgresql/extension *.sql
     install -D -t $out/share/postgresql/extension *.control
   '';
@@ -25,6 +25,5 @@ stdenv.mkDerivation rec {
     maintainers = with maintainers; [ ivan ];
     platforms = postgresql.meta.platforms;
     license = licenses.postgresql;
-    broken = versionOlder postgresql.version "9.5";
   };
 }

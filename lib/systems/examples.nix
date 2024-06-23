@@ -59,7 +59,7 @@ rec {
 
   armv7a-android-prebuilt = {
     config = "armv7a-unknown-linux-androideabi";
-    rustc.config = "armv7-linux-androideabi";
+    rust.rustcTarget = "armv7-linux-androideabi";
     sdkVer = "28";
     ndkVer = "24";
     useAndroidPrebuilt = true;
@@ -67,7 +67,7 @@ rec {
 
   aarch64-android-prebuilt = {
     config = "aarch64-unknown-linux-android";
-    rustc.config = "aarch64-linux-android";
+    rust.rustcTarget = "aarch64-linux-android";
     sdkVer = "28";
     ndkVer = "24";
     useAndroidPrebuilt = true;
@@ -115,6 +115,7 @@ rec {
   };
 
   gnu64 = { config = "x86_64-unknown-linux-gnu"; };
+  gnu64_simplekernel = gnu64 // platforms.pc_simplekernel; # see test/cross/default.nix
   gnu32  = { config = "i686-unknown-linux-gnu"; };
 
   musl64 = { config = "x86_64-unknown-linux-musl"; };
@@ -206,6 +207,7 @@ rec {
   aarch64-embedded = {
     config = "aarch64-none-elf";
     libc = "newlib";
+    rust.rustcTarget = "aarch64-unknown-none";
   };
 
   aarch64be-embedded = {
@@ -230,6 +232,11 @@ rec {
 
   x86_64-embedded = {
     config = "x86_64-elf";
+    libc = "newlib";
+  };
+
+  microblaze-embedded = {
+    config = "microblazeel-none-elf";
     libc = "newlib";
   };
 
@@ -321,7 +328,7 @@ rec {
   # BSDs
 
   x86_64-freebsd = {
-    config = "x86_64-unknown-freebsd13";
+    config = "x86_64-unknown-freebsd";
     useLLVM = true;
   };
 
@@ -332,6 +339,11 @@ rec {
   # this is broken and never worked fully
   x86_64-netbsd-llvm = {
     config = "x86_64-unknown-netbsd";
+    useLLVM = true;
+  };
+
+  x86_64-openbsd = {
+    config = "x86_64-unknown-openbsd";
     useLLVM = true;
   };
 

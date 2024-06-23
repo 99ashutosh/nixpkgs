@@ -1,11 +1,12 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, pythonOlder
-, pytestCheckHook
-, hypothesis
-, numpy
-, setuptools
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  pythonOlder,
+  pytestCheckHook,
+  hypothesis,
+  numpy,
+  setuptools,
 }:
 
 buildPythonPackage rec {
@@ -17,23 +18,32 @@ buildPythonPackage rec {
 
   src = fetchFromGitHub {
     owner = "CyberAgentAILab";
-    repo = pname;
+    repo = "cmaes";
     rev = "refs/tags/v${version}";
     hash = "sha256-1mXulG/yqNwKQKDFGBh8uxIYOPSsm8+PNp++CSswc50=";
   };
 
   nativeBuildInputs = [ setuptools ];
+
   propagatedBuildInputs = [ numpy ];
 
-  nativeCheckInputs = [ pytestCheckHook hypothesis ];
+  nativeCheckInputs = [
+    hypothesis
+    pytestCheckHook
+  ];
 
   pythonImportsCheck = [ "cmaes" ];
+
+  disabledTests = [
+    # Disable time-sensitive test
+    "test_cma_tell"
+  ];
 
   meta = with lib; {
     description = "Python library for CMA evolution strategy";
     homepage = "https://github.com/CyberAgentAILab/cmaes";
     changelog = "https://github.com/CyberAgentAILab/cmaes/releases/tag/v${version}";
     license = licenses.mit;
-    maintainers = [ maintainers.bcdarwin ];
+    maintainers = with maintainers; [ bcdarwin ];
   };
 }

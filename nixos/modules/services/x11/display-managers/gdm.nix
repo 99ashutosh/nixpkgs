@@ -32,7 +32,7 @@ let
     load-module module-position-event-sounds
   '';
 
-  defaultSessionName = config.services.xserver.displayManager.defaultSession;
+  defaultSessionName = config.services.displayManager.defaultSession;
 
   setSessionScript = pkgs.callPackage ./account-service-util.nix { };
 in
@@ -41,14 +41,12 @@ in
   imports = [
     (mkRenamedOptionModule [ "services" "xserver" "displayManager" "gdm" "autoLogin" "enable" ] [
       "services"
-      "xserver"
       "displayManager"
       "autoLogin"
       "enable"
     ])
     (mkRenamedOptionModule [ "services" "xserver" "displayManager" "gdm" "autoLogin" "user" ] [
       "services"
-      "xserver"
       "displayManager"
       "autoLogin"
       "user"
@@ -67,15 +65,15 @@ in
 
     services.xserver.displayManager.gdm = {
 
-      enable = mkEnableOption (lib.mdDoc "GDM, the GNOME Display Manager");
+      enable = mkEnableOption "GDM, the GNOME Display Manager";
 
-      debug = mkEnableOption (lib.mdDoc "debugging messages in GDM");
+      debug = mkEnableOption "debugging messages in GDM";
 
       # Auto login options specific to GDM
       autoLogin.delay = mkOption {
         type = types.int;
         default = 0;
-        description = lib.mdDoc ''
+        description = ''
           Seconds of inactivity after which the autologin will be performed.
         '';
       };
@@ -83,18 +81,31 @@ in
       wayland = mkOption {
         type = types.bool;
         default = true;
-        description = lib.mdDoc ''
+        description = ''
           Allow GDM to run on Wayland instead of Xserver.
         '';
       };
 
       autoSuspend = mkOption {
         default = true;
-        description = lib.mdDoc ''
+        description = ''
           On the GNOME Display Manager login screen, suspend the machine after inactivity.
           (Does not affect automatic suspend while logged in, or at lock screen.)
         '';
         type = types.bool;
+      };
+
+      banner = mkOption {
+        type = types.nullOr types.lines;
+        default = null;
+        example = ''
+          foo
+          bar
+          baz
+        '';
+        description = ''
+          Optional message to display on the login screen.
+        '';
       };
 
       settings = mkOption {
@@ -103,7 +114,7 @@ in
         example = {
           debug.enable = true;
         };
-        description = lib.mdDoc ''
+        description = ''
           Options passed to the gdm daemon.
           See [here](https://help.gnome.org/admin/gdm/stable/configuration.html.en#daemonconfig) for supported options.
         '';
@@ -135,14 +146,14 @@ in
     services.xserver.display = null;
     services.xserver.verbose = null;
 
-    services.xserver.displayManager.job =
+    services.displayManager =
       {
         environment = {
           GDM_X_SERVER_EXTRA_ARGS = toString
             (filter (arg: arg != "-terminate") cfg.xserverArgs);
           XDG_DATA_DIRS = lib.makeSearchPath "share" [
             gdm # for gnome-login.session
-            cfg.sessionData.desktops
+            config.services.displayManager.sessionData.desktops
             pkgs.gnome.gnome-control-center # for accessibility icon
             pkgs.gnome.adwaita-icon-theme
             pkgs.hicolor-icon-theme # empty icon theme as a base
@@ -156,7 +167,7 @@ in
         execCmd = "exec ${gdm}/bin/gdm";
         preStart = optionalString (defaultSessionName != null) ''
           # Set default session in session chooser to a specified values – basically ignore session history.
-          ${setSessionScript}/bin/set-session ${cfg.sessionData.autologinSession}
+          ${setSessionScript}/bin/set-session ${config.services.displayManager.sessionData.autologinSession}
         '';
       };
 
@@ -238,6 +249,11 @@ in
         sleep-inactive-ac-timeout = lib.gvariant.mkInt32 0;
         sleep-inactive-battery-timeout = lib.gvariant.mkInt32 0;
       };
+    }] ++ lib.optionals (cfg.gdm.banner != null) [{
+      settings."org/gnome/login-screen" = {
+        banner-message-enable = true;
+        banner-message-text = cfg.gdm.banner;
+      };
     }] ++ [ "${gdm}/share/gdm/greeter-dconf-defaults" ];
 
     # Use AutomaticLogin if delay is zero, because it's immediate.
@@ -247,14 +263,14 @@ in
       daemon = mkMerge [
         { WaylandEnable = cfg.gdm.wayland; }
         # nested if else didn't work
-        (mkIf (cfg.autoLogin.enable && cfg.gdm.autoLogin.delay != 0 ) {
+        (mkIf (config.services.displayManager.autoLogin.enable && cfg.gdm.autoLogin.delay != 0 ) {
           TimedLoginEnable = true;
-          TimedLogin = cfg.autoLogin.user;
+          TimedLogin = config.services.displayManager.autoLogin.user;
           TimedLoginDelay = cfg.gdm.autoLogin.delay;
         })
-        (mkIf (cfg.autoLogin.enable && cfg.gdm.autoLogin.delay == 0 ) {
+        (mkIf (config.services.displayManager.autoLogin.enable && cfg.gdm.autoLogin.delay == 0 ) {
           AutomaticLoginEnable = true;
-          AutomaticLogin = cfg.autoLogin.user;
+          AutomaticLogin = config.services.displayManager.autoLogin.user;
         })
       ];
       debug = mkIf cfg.gdm.debug {
@@ -264,7 +280,7 @@ in
 
     environment.etc."gdm/custom.conf".source = configFile;
 
-    environment.etc."gdm/Xsession".source = config.services.xserver.displayManager.sessionData.wrapper;
+    environment.etc."gdm/Xsession".source = config.services.displayManager.sessionData.wrapper;
 
     # GDM LFS PAM modules, adapted somehow to NixOS
     security.pam.services = {

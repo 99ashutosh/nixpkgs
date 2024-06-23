@@ -1,14 +1,16 @@
-{ pkgs
-, buildPythonPackage
-, pythonOlder
-, fetchFromGitHub
-, pyqt5
-, asyncua
+{
+  pkgs,
+  buildPythonPackage,
+  pythonOlder,
+  fetchFromGitHub,
+  pyqt5,
+  asyncua,
 }:
 
 buildPythonPackage rec {
   pname = "opcua-widgets";
   version = "0.6.1";
+  format = "setuptools";
 
   src = fetchFromGitHub {
     owner = "FreeOpcUa";

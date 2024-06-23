@@ -2,16 +2,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "cargo-udeps";
-  version = "0.1.42";
+  version = "0.1.47";
 
   src = fetchFromGitHub {
     owner = "est31";
     repo = pname;
     rev = "v${version}";
-    sha256 = "sha256-8CQnmUk7jMlcdtZh6046B5duKnZKaMVk2xG4D2svqVw=";
+    sha256 = "sha256-1XnCGbOkAmQycwAAEbkoX9xHqBZWYM9v5fp8BdFv7RM=";
   };
 
-  cargoHash = "sha256-e3ku9c4VLZtnJIUDRMAcUVaJnOsMqckj3XmuJHSR364=";
+  cargoHash = "sha256-awEqrvmu9Kgqlz43/yJFM45WfUXZPLix5LKLtwiXV7U=";
 
   nativeBuildInputs = [ pkg-config ];
 
@@ -27,5 +27,6 @@ rustPlatform.buildRustPackage rec {
     homepage = "https://github.com/est31/cargo-udeps";
     license = licenses.mit;
     maintainers = with maintainers; [ b4dm4n matthiasbeyer ];
+    mainProgram = "cargo-udeps";
   };
 }

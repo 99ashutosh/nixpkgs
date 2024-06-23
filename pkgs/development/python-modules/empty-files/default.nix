@@ -1,12 +1,14 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, requests
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  requests,
 }:
 
 buildPythonPackage rec {
   pname = "empty-files";
   version = "0.0.9";
+  format = "setuptools";
 
   src = fetchFromGitHub {
     owner = "approvals";
@@ -15,9 +17,7 @@ buildPythonPackage rec {
     hash = "sha256-P/woyAN9cYdxryX1iM36C53c9dL6lo4eoTzBWT2cd3A=";
   };
 
-  propagatedBuildInputs = [
-    requests
-  ];
+  propagatedBuildInputs = [ requests ];
 
   # cyclic dependency with approvaltests
   doCheck = false;

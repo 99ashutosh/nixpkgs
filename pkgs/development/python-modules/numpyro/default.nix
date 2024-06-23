@@ -1,30 +1,35 @@
-{ lib
-, buildPythonPackage
-, pythonOlder
-, fetchPypi
-, jax
-, jaxlib
-, multipledispatch
-, numpy
-, tqdm
-, funsor
-, pytestCheckHook
-, tensorflow-probability
+{
+  lib,
+  buildPythonPackage,
+  pythonOlder,
+  fetchPypi,
+  setuptools,
+  jax,
+  jaxlib,
+  multipledispatch,
+  numpy,
+  tqdm,
+  funsor,
+  pytestCheckHook,
+# TODO: uncomment when tensorflow-probability gets fixed.
+# , tensorflow-probability
 }:
 
 buildPythonPackage rec {
   pname = "numpyro";
-  version = "0.13.0";
-  format = "setuptools";
+  version = "0.15.0";
+  pyproject = true;
 
   disabled = pythonOlder "3.9";
 
   src = fetchPypi {
     inherit version pname;
-    hash = "sha256-n+5K6fZlatKkXGVxzKcVhmP5XNuJeeM+GcCJ1Kh/WMk=";
+    hash = "sha256-4WyfR8wx4qollYSgtslEMSCB0zypJAYCJjKtWEsOYA0=";
   };
 
-  propagatedBuildInputs = [
+  build-system = [ setuptools ];
+
+  dependencies = [
     jax
     jaxlib
     multipledispatch
@@ -35,12 +40,11 @@ buildPythonPackage rec {
   nativeCheckInputs = [
     funsor
     pytestCheckHook
-    tensorflow-probability
+    # TODO: uncomment when tensorflow-probability gets fixed.
+    # tensorflow-probability
   ];
 
-  pythonImportsCheck = [
-    "numpyro"
-  ];
+  pythonImportsCheck = [ "numpyro" ];
 
   disabledTests = [
     # AssertionError due to tolerance issues
@@ -61,6 +65,9 @@ buildPythonPackage rec {
     # NameError: unbound axis name: _provenance
     "test_model_transformation"
   ];
+
+  # TODO: remove when tensorflow-probability gets fixed.
+  disabledTestPaths = [ "test/test_distributions.py" ];
 
   meta = with lib; {
     description = "Library for probabilistic programming with NumPy";

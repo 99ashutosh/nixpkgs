@@ -16,13 +16,13 @@
 
 stdenv.mkDerivation rec {
   pname = "yaru";
-  version = "23.04.4";
+  version = "24.04.3";
 
   src = fetchFromGitHub {
     owner = "ubuntu";
     repo = "yaru";
     rev = version;
-    hash = "sha256-8MtRYNJJVhZzE5Ds1HSk+Ej3FUD/z2hGZAsuCeGzWb4=";
+    hash = "sha256-Z0qW3hW5Sije5Hn6OB9f5M6xnmMmRnP76p0kjiQZznw=";
   };
 
   nativeBuildInputs = [ meson sassc pkg-config glib ninja python3 ];
@@ -39,6 +39,6 @@ stdenv.mkDerivation rec {
     homepage = "https://github.com/ubuntu/yaru";
     license = with licenses; [ cc-by-sa-40 gpl3Plus lgpl21Only lgpl3Only ];
     platforms = platforms.linux;
-    maintainers = with maintainers; [ fortuneteller2k amaxine ];
+    maintainers = with maintainers; [ moni ];
   };
 }

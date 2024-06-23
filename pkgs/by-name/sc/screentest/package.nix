@@ -18,16 +18,22 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-TJ47c77vQ/aRBJ2uEiFLuAR4dd4CMEo+iAAx0HCFbmA=";
   };
 
+  strictDeps = true;
+
   nativeBuildInputs = [
     autoreconfHook
     intltool
     pkg-config
+    gtk2 # for autoconf macros
   ];
 
-  buildInputs = [ gtk2 ];
+  buildInputs = [
+    gtk2
+  ];
 
   meta = with lib; {
-    description = "A simple screen testing tool";
+    description = "Simple screen testing tool";
+    mainProgram = "screentest";
     homepage = "https://github.com/TobiX/screentest";
     changelog = "https://github.com/TobiX/screentest/blob/${finalAttrs.src.rev}/NEWS";
     license = licenses.gpl2Only;

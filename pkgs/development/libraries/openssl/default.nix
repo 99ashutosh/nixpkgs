@@ -18,14 +18,14 @@
 # files.
 
 let
-  common = { version, sha256, patches ? [], withDocs ? false, extraMeta ? {} }:
+  common = { version, hash, patches ? [], withDocs ? false, extraMeta ? {} }:
    stdenv.mkDerivation (finalAttrs: {
     pname = "openssl";
     inherit version;
 
     src = fetchurl {
       url = "https://www.openssl.org/source/${finalAttrs.pname}-${version}.tar.gz";
-      inherit sha256;
+      inherit hash;
     };
 
     inherit patches;
@@ -86,6 +86,7 @@ let
         aarch64-darwin = "./Configure darwin64-arm64-cc";
         x86_64-linux = "./Configure linux-x86_64";
         x86_64-solaris = "./Configure solaris64-x86_64-gcc";
+        powerpc64-linux = "./Configure linux-ppc64";
         riscv64-linux = "./Configure linux64-riscv64";
       }.${stdenv.hostPlatform.system} or (
         if stdenv.hostPlatform == stdenv.buildPlatform
@@ -93,7 +94,7 @@ let
         else if stdenv.hostPlatform.isBSD
           then if stdenv.hostPlatform.isx86_64 then "./Configure BSD-x86_64"
           else if stdenv.hostPlatform.isx86_32
-            then "./Configure BSD-x86" + lib.optionalString (stdenv.hostPlatform.parsed.kernel.execFormat.name == "elf") "-elf"
+            then "./Configure BSD-x86" + lib.optionalString stdenv.hostPlatform.isElf "-elf"
           else "./Configure BSD-generic${toString stdenv.hostPlatform.parsed.cpu.bits}"
         else if stdenv.hostPlatform.isMinGW
           then "./Configure mingw${lib.optionalString
@@ -219,9 +220,11 @@ let
 
     meta = with lib; {
       homepage = "https://www.openssl.org/";
-      description = "A cryptographic library that implements the SSL and TLS protocols";
+      changelog = "https://github.com/openssl/openssl/blob/openssl-${version}/CHANGES.md";
+      description = "Cryptographic library that implements the SSL and TLS protocols";
       license = licenses.openssl;
       mainProgram = "openssl";
+      maintainers = with maintainers; [ thillux ];
       pkgConfigModules = [
         "libcrypto"
         "libssl"
@@ -232,13 +235,22 @@ let
   });
 
 in {
+  # intended version "policy":
+  # - 1.1 as long as some package exists, which does not build without it
+  #   (tracking issue: https://github.com/NixOS/nixpkgs/issues/269713)
+  #   try to remove in 24.05 for the first time, if possible then
+  # - latest 3.x LTS
+  # - latest 3.x non-LTS as preview/for development
+  #
+  # - other versions in between only when reasonable need is stated for some package
+  # - backport every security critical fix release e.g. 3.0.y -> 3.0.y+1 but no new version, e.g. 3.1 -> 3.2
 
   # If you do upgrade here, please update in pkgs/top-level/release.nix
   # the permitted insecure version to ensure it gets cached for our users
-  # and backport this to stable release (23.05).
+  # and backport this to stable release (at time of writing this 23.11).
   openssl_1_1 = common {
     version = "1.1.1w";
-    sha256 = "sha256-zzCYlQy02FOtlcCEHx+cbT3BAtzPys1SHZOSUgi3asg=";
+    hash = "sha256-zzCYlQy02FOtlcCEHx+cbT3BAtzPys1SHZOSUgi3asg=";
     patches = [
       ./1.1/nix-ssl-cert-file.patch
 
@@ -249,14 +261,15 @@ in {
     withDocs = true;
     extraMeta = {
       knownVulnerabilities = [
-        "OpenSSL 1.1 is reaching its end of life on 2023/09/11 and cannot be supported through the NixOS 23.05 release cycle. https://www.openssl.org/blog/blog/2023/03/28/1.1.1-EOL/"
+        "OpenSSL 1.1 is reaching its end of life on 2023/09/11 and cannot be supported through the NixOS 23.11 release cycle. https://www.openssl.org/blog/blog/2023/03/28/1.1.1-EOL/"
       ];
     };
   };
 
   openssl_3 = common {
-    version = "3.0.10";
-    sha256 = "sha256-F2HU9bE6ECi5tvPUuOF/6wztyTcPav5h1xk9LNzoMyM=";
+    version = "3.0.13";
+    hash = "sha256-iFJXU/edO+wn0vp8ZqoLkrOqlJja/ZPXz6SzeAza4xM=";
+
     patches = [
       ./3.0/nix-ssl-cert-file.patch
 
@@ -267,6 +280,52 @@ in {
       (if stdenv.hostPlatform.isDarwin
        then ./use-etc-ssl-certs-darwin.patch
        else ./use-etc-ssl-certs.patch)
+    ];
+
+    withDocs = true;
+
+    extraMeta = with lib; {
+      license = licenses.asl20;
+    };
+  };
+
+  openssl_3_2 = common {
+    version = "3.2.1";
+    hash = "sha256-g8cyn+UshQZ3115dCwyiRTCbl+jsvP3B39xKufrDWzk=";
+
+    patches = [
+      ./3.0/nix-ssl-cert-file.patch
+
+      # openssl will only compile in KTLS if the current kernel supports it.
+      # This patch disables build-time detection.
+      ./3.0/openssl-disable-kernel-detection.patch
+
+      (if stdenv.hostPlatform.isDarwin
+       then ./3.2/use-etc-ssl-certs-darwin.patch
+       else ./3.2/use-etc-ssl-certs.patch)
+    ];
+
+    withDocs = true;
+
+    extraMeta = with lib; {
+      license = licenses.asl20;
+    };
+  };
+
+  openssl_3_3 = common {
+    version = "3.3.0";
+    hash = "sha256-U+ZrBDMipgar8Ah+dpmg4DOjf6E/65dC3zXDozsY+wI=";
+
+    patches = [
+      ./3.0/nix-ssl-cert-file.patch
+
+      # openssl will only compile in KTLS if the current kernel supports it.
+      # This patch disables build-time detection.
+      ./3.0/openssl-disable-kernel-detection.patch
+
+      (if stdenv.hostPlatform.isDarwin
+       then ./3.2/use-etc-ssl-certs-darwin.patch
+       else ./3.2/use-etc-ssl-certs.patch)
     ];
 
     withDocs = true;

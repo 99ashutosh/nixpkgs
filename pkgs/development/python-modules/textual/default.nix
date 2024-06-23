@@ -1,56 +1,48 @@
-{ lib
-, aiohttp
-, buildPythonPackage
-, click
-, fetchFromGitHub
-, importlib-metadata
-, jinja2
-, linkify-it-py
-, markdown-it-py
-, mdit-py-plugins
-, mkdocs-exclude
-, msgpack
-, poetry-core
-, pytest-aiohttp
-, pytestCheckHook
-, pythonOlder
-, rich
-, syrupy
-, time-machine
-, typing-extensions
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  jinja2,
+  markdown-it-py,
+  poetry-core,
+  pytest-aiohttp,
+  pytestCheckHook,
+  pythonOlder,
+  rich,
+  syrupy,
+  time-machine,
+  tree-sitter,
+  typing-extensions,
 }:
 
 buildPythonPackage rec {
   pname = "textual";
-  version = "0.37.1";
-  format = "pyproject";
+  version = "0.68.0";
+  pyproject = true;
 
-  disabled = pythonOlder "3.7";
+  disabled = pythonOlder "3.8";
 
   src = fetchFromGitHub {
     owner = "Textualize";
-    repo = pname;
+    repo = "textual";
     rev = "refs/tags/v${version}";
-    hash = "sha256-4ehq36j2n2wRMgos5x4LQ0QeELpWAOgpgTxEWjqFLJs=";
+    hash = "sha256-nxQVxe7lXMcxyqh4SWcQ/A6eQcEzkSshKmpweHpn7JE=";
   };
 
-  nativeBuildInputs = [
-    poetry-core
-  ];
+  build-system = [ poetry-core ];
 
-  propagatedBuildInputs = [
-    aiohttp
-    click
-    importlib-metadata
-    linkify-it-py
+  dependencies = [
     markdown-it-py
-    mdit-py-plugins
-    mkdocs-exclude
-    msgpack
     rich
-  ] ++ lib.optionals (pythonOlder "3.11") [
     typing-extensions
-  ];
+  ] ++ markdown-it-py.optional-dependencies.plugins ++ markdown-it-py.optional-dependencies.linkify;
+
+  optional-dependencies = {
+    syntax = [
+      tree-sitter
+      # tree-sitter-languages
+    ];
+  };
 
   nativeCheckInputs = [
     jinja2
@@ -58,7 +50,7 @@ buildPythonPackage rec {
     pytestCheckHook
     syrupy
     time-machine
-  ];
+  ] ++ optional-dependencies.syntax;
 
   disabledTestPaths = [
     # snapshot tests require syrupy<4
@@ -69,11 +61,13 @@ buildPythonPackage rec {
     # Assertion issues
     "test_textual_env_var"
     "test_softbreak_split_links_rendered_correctly"
+
+    # requires tree-sitter-languages which is not packaged in nixpkgs
+    "test_register_language"
+    "test_language_binary_missing"
   ];
 
-  pythonImportsCheck = [
-    "textual"
-  ];
+  pythonImportsCheck = [ "textual" ];
 
   __darwinAllowLocalNetworking = true;
 

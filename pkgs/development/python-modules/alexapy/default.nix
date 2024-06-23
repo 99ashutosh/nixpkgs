@@ -1,26 +1,27 @@
-{ lib
-, aiofiles
-, aiohttp
-, authcaptureproxy
-, backoff
-, beautifulsoup4
-, buildPythonPackage
-, certifi
-, cryptography
-, fetchFromGitLab
-, poetry-core
-, pyotp
-, pythonOlder
-, pythonRelaxDepsHook
-, requests
-, simplejson
-, yarl
+{
+  lib,
+  aiofiles,
+  aiohttp,
+  authcaptureproxy,
+  backoff,
+  beautifulsoup4,
+  buildPythonPackage,
+  certifi,
+  cryptography,
+  fetchFromGitLab,
+  poetry-core,
+  pyotp,
+  pythonOlder,
+  pythonRelaxDepsHook,
+  requests,
+  simplejson,
+  yarl,
 }:
 
 buildPythonPackage rec {
   pname = "alexapy";
-  version = "1.26.9";
-  format = "pyproject";
+  version = "1.27.10";
+  pyproject = true;
 
   disabled = pythonOlder "3.10";
 
@@ -28,12 +29,10 @@ buildPythonPackage rec {
     owner = "keatontaylor";
     repo = "alexapy";
     rev = "refs/tags/v${version}";
-    hash = "sha256-mDh4kYwRXpvVCh+nBmQblmlmgG98P6+UmgG4ZioQ68M=";
+    hash = "sha256-eoL7q+p0m3YZd7Ub7U8nE3tQGNA2oQXelvN+H01b0BM=";
   };
 
-  pythonRelaxDeps = [
-    "aiofiles"
-  ];
+  pythonRelaxDeps = [ "aiofiles" ];
 
   nativeBuildInputs = [
     poetry-core
@@ -54,9 +53,7 @@ buildPythonPackage rec {
     yarl
   ];
 
-  pythonImportsCheck = [
-    "alexapy"
-  ];
+  pythonImportsCheck = [ "alexapy" ];
 
   # Module has no tests (only a websocket test which seems unrelated to the module)
   doCheck = false;
@@ -64,7 +61,7 @@ buildPythonPackage rec {
   meta = with lib; {
     description = "Python Package for controlling Alexa devices (echo dot, etc) programmatically";
     homepage = "https://gitlab.com/keatontaylor/alexapy";
-    changelog = "https://gitlab.com/keatontaylor/alexapy/-/blob/${src.rev}/CHANGELOG.md";
+    changelog = "https://gitlab.com/keatontaylor/alexapy/-/blob/v${version}/CHANGELOG.md";
     license = licenses.asl20;
     maintainers = with maintainers; [ fab ];
   };

@@ -7,17 +7,17 @@
 
 buildGoModule rec {
   pname = "gitea-actions-runner";
-  version = "0.2.5";
+  version = "0.2.10";
 
   src = fetchFromGitea {
     domain = "gitea.com";
     owner = "gitea";
     repo = "act_runner";
     rev = "v${version}";
-    hash = "sha256-HWJrgZJfI5fOeZvQkmpd6wciJWh1JOmZMlyGHSbgHpc=";
+    hash = "sha256-YRWFBMHw9Fcmzkmglh2I1kXJkAAivqvCBcenLTjE/bI=";
   };
 
-  vendorHash = "sha256-Z61kTbKHSUpt2F6jVUUK4KwMJ0ILT1FI4/62AkNQuZI=";
+  vendorHash = "sha256-8sdSQhg9DnRLgghDZzWrUMM4vjinhCgu3dTKU7MBVQU=";
 
   ldflags = [
     "-s"
@@ -36,6 +36,6 @@ buildGoModule rec {
     license = licenses.mit;
     changelog = "https://gitea.com/gitea/act_runner/releases/tag/v${version}";
     homepage = "https://gitea.com/gitea/act_runner";
-    description = "A runner for Gitea based on act";
+    description = "Runner for Gitea based on act";
   };
 }

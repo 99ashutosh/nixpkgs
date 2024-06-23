@@ -61,10 +61,6 @@ stdenv.mkDerivation rec {
     echo 'DRACUT_VERSION=${version}' >dracut-version.sh
   '';
 
-  preConfigure = ''
-    patchShebangs ./configure
-  '';
-
   postFixup = ''
     wrapProgram $out/bin/dracut --prefix PATH : ${lib.makeBinPath [
       coreutils
@@ -106,7 +102,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     homepage = "https://github.com/dracutdevs/dracut/wiki";
-    description = "An event driven initramfs infrastructure";
+    description = "Event driven initramfs infrastructure";
     license = licenses.gpl2Plus;
     maintainers = with maintainers; [ lilyinstarlight ];
     platforms = platforms.linux;

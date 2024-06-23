@@ -1,32 +1,34 @@
-{ lib
-, buildPythonPackage
-, fetchPypi
-, pythonOlder
+{
+  lib,
+  buildPythonPackage,
+  fetchPypi,
+  pythonOlder,
+  setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "peaqevcore";
-  version = "19.4.2";
-  format = "setuptools";
+  version = "19.10.24";
+  pyproject = true;
 
   disabled = pythonOlder "3.7";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-SJ3G301HO0TnrupzhK4K6JPDs25Nltv+lNj1nQB7gV4=";
+    hash = "sha256-jpJVYANreHUW6vclkdNdnaFb/QxFfJf0nuTBl3K3qBY=";
   };
 
   postPatch = ''
     sed -i "/extras_require/d" setup.py
   '';
 
+  build-system = [ setuptools ];
+
   # Tests are not shipped and source is not tagged
   # https://github.com/elden1337/peaqev-core/issues/4
   doCheck = false;
 
-  pythonImportsCheck = [
-    "peaqevcore"
-  ];
+  pythonImportsCheck = [ "peaqevcore" ];
 
   meta = with lib; {
     description = "Library for interacting with Peaqev car charging";

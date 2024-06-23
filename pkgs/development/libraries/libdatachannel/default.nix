@@ -14,13 +14,13 @@
 
 stdenv.mkDerivation rec {
   pname = "libdatachannel";
-  version = "0.19.1";
+  version = "0.21.1";
 
   src = fetchFromGitHub {
     owner = "paullouisageneau";
-    repo = pname;
+    repo = "libdatachannel";
     rev = "v${version}";
-    hash = "sha256-jsJTECSR3ptiByfYQ00laeKMKJCv5IDkZmilY3jpRrU=";
+    hash = "sha256-sTdA4kCIdY3l/YUNKbXzRDS1O0AFx90k94W3cJpfLIY=";
   };
 
   outputs = [ "out" "dev" ];
@@ -46,9 +46,9 @@ stdenv.mkDerivation rec {
   ];
 
   postFixup = ''
-    # Fix shared library path that will be incorrect on move to "dev" output
-    substituteInPlace "$dev/lib/cmake/LibDataChannel/LibDataChannelTargets-release.cmake" \
-      --replace "\''${_IMPORT_PREFIX}/lib" "$out/lib"
+    # Fix include path that will be incorrect due to the "dev" output
+    substituteInPlace "$dev/lib/cmake/LibDataChannel/LibDataChannelTargets.cmake" \
+      --replace "\''${_IMPORT_PREFIX}/include" "$dev/include"
   '';
 
   meta = with lib; {

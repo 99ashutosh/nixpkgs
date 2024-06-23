@@ -2,7 +2,7 @@
 , stdenv
 , buildPackages
 , fetchurl
-, binutils
+, updateAutotoolsGnuConfigScriptsHook
 , bison
 , util-linux
 
@@ -23,11 +23,12 @@ let
   });
 in
 stdenv.mkDerivation rec {
-  name = "bash-${lib.optionalString interactive "interactive-"}${version}-p${toString (builtins.length upstreamPatches)}";
-  version = "5.2";
+  pname = "bash${lib.optionalString interactive "-interactive"}";
+  version = "5.2${patch_suffix}";
+  patch_suffix = "p${toString (builtins.length upstreamPatches)}";
 
   src = fetchurl {
-    url = "mirror://gnu/bash/bash-${version}.tar.gz";
+    url = "mirror://gnu/bash/bash-${lib.removeSuffix patch_suffix version}.tar.gz";
     sha256 = "sha256-oTnBZt9/9EccXgczBRZC7lVWwcyKSnjxRVg8XIGrMvs=";
   };
 
@@ -68,6 +69,12 @@ stdenv.mkDerivation rec {
   ];
 
   configureFlags = [
+    # At least on Linux bash memory allocator has pathological performance
+    # in scenarios involving use of larger memory:
+    #   https://lists.gnu.org/archive/html/bug-bash/2023-08/msg00052.html
+    # Various distributions default to system allocator. Let's nixpkgs
+    # do the same.
+    "--without-bash-malloc"
     (if interactive then "--with-installed-readline" else "--disable-readline")
   ] ++ lib.optionals (stdenv.hostPlatform != stdenv.buildPlatform) [
     "bash_cv_job_control_missing=nomissing"
@@ -81,16 +88,19 @@ stdenv.mkDerivation rec {
     "bash_cv_dev_fd=standard"
     "bash_cv_termcap_lib=libncurses"
   ] ++ lib.optionals (stdenv.hostPlatform.libc == "musl") [
-    "--without-bash-malloc"
     "--disable-nls"
+  ] ++ lib.optionals stdenv.hostPlatform.isFreeBSD [
+    # /dev/fd is optional on FreeBSD. we need it to work when built on a system
+    # with it and transferred to a system without it! This includes linux cross.
+    "bash_cv_dev_fd=absent"
   ];
 
   strictDeps = true;
   # Note: Bison is needed because the patches above modify parse.y.
   depsBuildBuild = [ buildPackages.stdenv.cc ];
-  nativeBuildInputs = [ bison ]
+  nativeBuildInputs = [ updateAutotoolsGnuConfigScriptsHook bison ]
     ++ lib.optional withDocs texinfo
-    ++ lib.optional stdenv.hostPlatform.isDarwin binutils;
+    ++ lib.optional stdenv.hostPlatform.isDarwin stdenv.cc.bintools;
 
   buildInputs = lib.optional interactive readline;
 

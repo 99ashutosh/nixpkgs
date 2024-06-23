@@ -1,27 +1,41 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
-, sphinx-rtd-theme
-, sphinxHook
-, colorzero
-, mock
-, pythonOlder
-, pytestCheckHook
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
+  pythonOlder,
+
+  # build-system
+  setuptools,
+
+  # docs
+  sphinx-rtd-theme,
+  sphinxHook,
+
+  # dependencies
+  colorzero,
+
+  # tests
+  pytestCheckHook,
 }:
 
 buildPythonPackage rec {
   pname = "gpiozero";
-  version = "1.6.2";
-  format = "setuptools";
+  version = "2.0.1";
+  pyproject = true;
 
-  disabled = pythonOlder "3.7";
+  disabled = pythonOlder "3.9";
 
   src = fetchFromGitHub {
     owner = "gpiozero";
     repo = pname;
     rev = "refs/tags/v${version}";
-    hash = "sha256-dmFc3DNTlEajYQ5e8QK2WfehwYwAsWyG2cxKg5ykEaI=";
+    hash = "sha256-ifdCFcMH6SrhKQK/TJJ5lJafSfAUzd6ZT5ANUzJGwxI=";
   };
+
+  postPatch = ''
+    substituteInPlace setup.cfg \
+      --replace " --cov" ""
+  '';
 
   outputs = [
     "out"
@@ -29,18 +43,14 @@ buildPythonPackage rec {
   ];
 
   nativeBuildInputs = [
+    setuptools
     sphinx-rtd-theme
     sphinxHook
   ];
 
-  propagatedBuildInputs = [
-    colorzero
-  ];
+  propagatedBuildInputs = [ colorzero ];
 
-  nativeCheckInputs = [
-    mock
-    pytestCheckHook
-  ];
+  nativeCheckInputs = [ pytestCheckHook ];
 
   pythonImportsCheck = [
     "gpiozero"
@@ -53,7 +63,7 @@ buildPythonPackage rec {
   ];
 
   meta = with lib; {
-    description = "A simple interface to GPIO devices with Raspberry Pi";
+    description = "Simple interface to GPIO devices with Raspberry Pi";
     homepage = "https://github.com/gpiozero/gpiozero";
     changelog = "https://github.com/gpiozero/gpiozero/blob/v${version}/docs/changelog.rst";
     license = licenses.bsd3;
